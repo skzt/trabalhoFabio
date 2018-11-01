@@ -52,7 +52,7 @@ CREATE TABLE `DISCIPLINA_ALUNO` (
   `idSemestreDisciplina` INT(254) NOT NULL,
   `idAluno` INT(10) NOT NULL,
   `situacao` INT(2) DEFAULT 1,
-  `nota` FLOAT(2,2) DEFAULT 0.0,
+  `nota` FLOAT(4,2) DEFAULT 0.0,
   PRIMARY KEY (idAluCod),
   CONSTRAINT FK_idDisciplina2 FOREIGN KEY (idDisciplina) REFERENCES DISCIPLINA(idDisciplina)
   ON DELETE CASCADE

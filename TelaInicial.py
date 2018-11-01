@@ -82,9 +82,10 @@ class TelaInicial(tk.Tk):
 
         self.__loginButton = tk.Button(self.__loginFrame)
         self.__loginButton['text'] = "Iniciar Sessão"
-        self.__loginButton['command'] = lambda u=__usuarioEntry: self.efetuarLogin(widgets=[__usuarioEntry, __senhaEntry])
+        self.__loginButton['command'] = lambda u=__usuarioEntry: self.efetuarLogin(
+            widgets=[__usuarioEntry, __senhaEntry])
         self.__loginButton.bind("<Return>",
-                           lambda _, u=__usuarioEntry: self.efetuarLogin(widgets=[__usuarioEntry, __senhaEntry]))
+                                lambda _, u=__usuarioEntry: self.efetuarLogin(widgets=[__usuarioEntry, __senhaEntry]))
 
         __sairButton = tk.Button(self.__loginFrame)
         __sairButton['text'] = "Ecerrar Aplicação"
@@ -105,16 +106,25 @@ class TelaInicial(tk.Tk):
         # TODO: criar metodo de saida e definir como usuario logado sera guardado e usado!
 
     def efetuarLogin(self, widgets):
-        self.__loginButton['state'] = 'disabled'
-        self.alunoLogado = Login(janelaPrincipal=self,
-                                 usuario=self.__usuarioVar,
-                                 widgets=widgets)
+        try:
+            self.__loginButton['state'] = 'disabled'
+            self.alunoLogado = Login(janelaPrincipal=self,
+                                     usuario=self.__usuarioVar,
+                                     widgets=widgets)
+        except sql.err.OperationalError as error:
+            messagebox.showerror(title="Conexão ao Banco", message="Falha ao se conectar ao Banco de Dados",
+                                 parent=self)
+
+            self.__loginButton['state'] = 'normal'
+            return
+
         if self.alunoLogado.logar(self.__senhaVar):
             # Top Menus de Login
             self.__topLoginMenu.add_command(label="Alterar Senha", command=self.alunoLogado.alterarSenhaWindow)
             self.__topLoginMenu.add_command(label="Encerrar Sessão", command=self.alunoLogado.encerrarsessao)
-            self.__topMatriculaMenu.add_command(label="Solicitar Matricula", command=self.alunoLogado.aluno.solicitarMatricula)
-            self.__topMatriculaMenu.add_command(label="Ver Historico", command=self.alunoLogado.aluno.verHistorico)      
+            self.__topMatriculaMenu.add_command(label="Solicitar Matricula",
+                                                command=self.alunoLogado.aluno.solicitarMatricula)
+            self.__topMatriculaMenu.add_command(label="Ver Historico", command=self.alunoLogado.aluno.verHistorico)
 
             # Top Menus do Aluno
             pass
@@ -125,7 +135,7 @@ class TelaInicial(tk.Tk):
     def deslogar(self):
         # TODO: adicionar todos os top menus que forem adicionados após o login
         self.__topLoginMenu.delete(0, 1)
-        self.__topMatriculaMenu.delete(0,1)
+        self.__topMatriculaMenu.delete(0, 1)
         self.__loginButton['state'] = 'normal'
 
     @property
@@ -376,7 +386,6 @@ class Aluno:
     def solicitarMatricula(self):
         self.__matriculado.solicitarMatricula()
 
-
     def verHistorico(self):
         self.__matriculado.verHistorico()
 
@@ -432,6 +441,7 @@ class Aluno:
         self.__logado = logado
     # </editor-fold>
 
+
 class Disciplina:
     def __init__(self, numCreditos, codigo, nome, horario):
         self.__alunosMatriculados = []
@@ -455,7 +465,7 @@ class Matricula:
         self.__listaSelecionados = None
         self.__boxSemestre = None
 
-        #TODO: Filtrar Materias que constam como APROVADAS para não aparecerem para seleção
+        # TODO: Filtrar Materias que constam como APROVADAS para não aparecerem para seleção
 
     def criarJanela(self):
         self.__janelaSolicitar = tk.Toplevel(self.janelaPrincipal)
@@ -463,9 +473,11 @@ class Matricula:
         # TODO: Modificar de TopLevel para Frame e dar Grid ao lado da GRID de login
         DX = 170
         DY = 0
-        self.__janelaSolicitar.geometry("+%d+%d" % (self.janelaPrincipal.winfo_x() + DX, self.janelaPrincipal.winfo_y() + DY))
+        self.__janelaSolicitar.geometry(
+            "+%d+%d" % (self.janelaPrincipal.winfo_x() + DX, self.janelaPrincipal.winfo_y() + DY))
 
     def solicitarMatricula(self):
+        # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
         self.criarJanela()
 
         self.__listaDisciplinas = tk.Listbox(self.__janelaSolicitar)
@@ -478,15 +490,15 @@ class Matricula:
         self.__boxSemestre['state'] = 'readonly'
         self.__boxSemestre['width'] = 16
         self.__boxSemestre['values'] = ["Primeiro Semestre",
-                                   "Segundo Semestre",
-                                   "Terceiro Semestre",
-                                   "Quarto Semestre",
-                                   "Quinto Semestre",
-                                   "Sexto Semestre",
-                                   "Setimo Semestre",
-                                   "Oitavo Semestre",
-                                   "Nono Semestre",
-                                   "Decimo Semestre"]
+                                        "Segundo Semestre",
+                                        "Terceiro Semestre",
+                                        "Quarto Semestre",
+                                        "Quinto Semestre",
+                                        "Sexto Semestre",
+                                        "Setimo Semestre",
+                                        "Oitavo Semestre",
+                                        "Nono Semestre",
+                                        "Decimo Semestre"]
         self.__boxSemestre.current(0)
         self.mudarSemestre()
         self.__boxSemestre.bind("<<ComboboxSelected>>", self.mudarSemestre)
@@ -509,7 +521,7 @@ class Matricula:
         self.__listaSelecionados.grid(row=2, column=2, rowspan=2)
         __addButton.grid(row=2, column=1, sticky=('s'))
         __removerButton.grid(row=3, column=1, sticky=('n'))
-        __solicitarButton.grid(row=4,column=1)
+        __solicitarButton.grid(row=4, column=1)
 
     def mudarSemestre(self, evt=None):
         if isinstance(evt, tk.Event):
@@ -517,22 +529,29 @@ class Matricula:
         else:
             widget = self.__boxSemestre
 
-        mapaSemestre = {"Primeiro Semestre":1,
-                        "Segundo Semestre":2,
-                        "Terceiro Semestre":3,
-                        "Quarto Semestre":4,
-                        "Quinto Semestre":5,
-                        "Sexto Semestre":6,
-                        "Setimo Semestre":7,
-                        "Oitavo Semestre":8,
-                        "Nono Semestre":9,
-                        "Decimo Semestre":10}
+        mapaSemestre = {"Primeiro Semestre": 1,
+                        "Segundo Semestre": 2,
+                        "Terceiro Semestre": 3,
+                        "Quarto Semestre": 4,
+                        "Quinto Semestre": 5,
+                        "Sexto Semestre": 6,
+                        "Setimo Semestre": 7,
+                        "Oitavo Semestre": 8,
+                        "Nono Semestre": 9,
+                        "Decimo Semestre": 10}
 
-        select = "SELECT codigo, nome FROM DISCIPLINA JOIN DISCIPLINA_ALUNO ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina WHERE DISCIPLINA.semestreGrade = %d AND DISCIPLINA_ALUNO.idAluno = %d (DISCIPLINA_ALUNO.situacao != 4 or DISCIPLINA_ALUNO.situacao != 5);" %mapaSemestre[widget.get()]
+        select = '''SELECT DISCIPLINA.codigo, DISCIPLINA.nome
+FROM DISCIPLINA
+WHERE idDisciplina != ALL(SELECT idDisciplina
+                          FROM DISCIPLINA_ALUNO
+                          WHERE DISCIPLINA_ALUNO.idAluno = %d
+                            AND DISCIPLINA_ALUNO.situacao != 6
+                            AND DISCIPLINA_ALUNO.situacao != 7)
+AND semestreGrade = %d;''' \
+                 % (self.__idAluno, mapaSemestre[widget.get()])
 
+        print(select)
 
-        #INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idAluno`, `situacao`, `nota`) values (11, 11, 1, 4, 0.1);
-        #ALTERAR BANCO, FLOAT(4,2)
         cursor = self.DB.cursor()
         cursor.execute(select)
 
@@ -547,6 +566,10 @@ class Matricula:
                 continue
         # TODO: faze sort ignorando o codigo
         listaDisciplinas.sort()
+
+        self.__listaSelecionados.delete(0, 'end')
+        for disciplina in self.disciplinasSelecionadas:
+            self.__listaSelecionados.insert('end', disciplina)
 
         self.__listaDisciplinas.delete(0, 'end')
         for disciplina in listaDisciplinas:
@@ -565,8 +588,8 @@ class Matricula:
             self.disciplinasSelecionadas.append(selecionado)
             self.__listaSelecionados.insert('end', selecionado)
 
-
     def removerDisciplina(self):
+        # TODO: Remover solicitação do banco e da disciplinasSelecionadas
         index = self.__listaSelecionados.curselection()
 
         if len(index) > 0:
@@ -601,7 +624,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
 
             insert = ''' INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`)
             values (%d, %d, %d); ''' % (idDisciplina, idSemestreDisciplina, self.__idAluno)
-            
+
             cursor.execute(insert)
             self.DB.commit()
 
@@ -629,7 +652,8 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
 
         semestres = {}
 
-        historico = ttk.Treeview(self.__janelaSolicitar, columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
+        historico = ttk.Treeview(self.__janelaSolicitar,
+                                 columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
         historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
 
         historico.column('#0', width=140)
@@ -651,7 +675,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
 
         historico.heading('Situação', text='Situação')
         historico.column('Situação', width=100, anchor='center')
-        
+
         select = '''select DISCIPLINA.semestreGrade,
        DISCIPLINA.codigo,
        DISCIPLINA.nome,
@@ -664,7 +688,7 @@ from DISCIPLINA_ALUNO
          ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
        JOIN SEMESTRE_DISCIPLINA
          ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-WHERE DISCIPLINA_ALUNO.idAluno = %d;''' %(self.__idAluno)
+WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % (self.__idAluno)
 
         cursor.execute(select)
 
@@ -679,7 +703,6 @@ WHERE DISCIPLINA_ALUNO.idAluno = %d;''' %(self.__idAluno)
             historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
 
         historico.pack()
-
 
 
 if __name__ == '__main__':
