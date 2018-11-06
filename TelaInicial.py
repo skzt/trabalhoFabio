@@ -142,7 +142,7 @@ class TelaInicial(tk.Tk):
     def deslogar(self):
         # TODO: adicionar todos os top menus que forem adicionados após o login
         self.__topLoginMenu.delete(0, 1)
-        self.__topMatriculaMenu.delete(0, 1, 2)
+        self.__topMatriculaMenu.delete(0, 2)
         self.__loginButton['state'] = 'normal'
 
     @property
@@ -155,12 +155,10 @@ class TelaInicial(tk.Tk):
 
     @property
     def alunoLogado(self):
-        print("GETTER")
         return self.__alunoLogado
 
     @alunoLogado.setter
     def alunoLogado(self, aluno):
-        print("SETTER")
         self.__alunoLogado = aluno
 
 
@@ -326,12 +324,6 @@ class Login:
         self.__widgets[1]['state'] = 'normal'
         self.__widgets[1].delete(0, 'end')
 
-        self.alterarSenha.destroy()
-        self.deslogarButton.destroy()
-
-        del self.alterarSenha
-        del self.deslogarButton
-
         for window in self.janelaPrincipal.openWindows:
             window.destroy()
 
@@ -383,7 +375,7 @@ class Aluno:
         self.__matriculado.solicitarMatricula()
 
     def cancelarMatricula(self):
-        self.__matriculado.cancelarMatricula()
+        self.__matriculado.solicitarMatricula(cancelar=True)
 
     def verHistorico(self):
         self.__matriculado.verHistorico()
@@ -473,14 +465,15 @@ class Matricula:
 
     def carregarDisciplinas(self):
         # Verifica se já existe alguma materia com situação igual a PROCESSANDO
+        self.disciplinasSolicitadas.clear()
         cursor = self.DB.cursor()
 
-        select = ''' SELECT DISCIPLINA.codigo, disciplina.nome
+        select = ''' SELECT DISCIPLINA.codigo, DISCIPLINA.nome
         FROM DISCIPLINA
                JOIN DISCIPLINA_ALUNO
-                 ON DISCIPLINA.IDDISCIPLINA = DISCIPLINA_ALUNO.IDDISCIPLINA
-        WHERE DISCIPLINA_ALUNO.IDALUNO = %d
-          AND DISCIPLINA_ALUNO.SITUACAO = 1;''' % self.__idAluno
+                 ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
+        WHERE DISCIPLINA_ALUNO.idAluno = %d
+          AND DISCIPLINA_ALUNO.situacao = 1;''' % self.__idAluno
 
         cursor.execute(select)
         disciplinasSelecionadas = cursor.fetchall()
@@ -497,13 +490,19 @@ class Matricula:
         self.__janelaSolicitar = tk.Toplevel(self.janelaPrincipal)
         self.janelaPrincipal.openWindows.append(self.__janelaSolicitar)
         # TODO: Modificar de TopLevel para Frame e dar Grid ao lado da GRID de login
+        # TODO: Fazer criarJanela retornar a referencia apra o FRAME criado
+        # TODO: Criar menu para alternar entre janelas na GRID
         DX = 170
         DY = 0
         self.__janelaSolicitar.geometry(
             "+%d+%d" % (self.janelaPrincipal.winfo_x() + DX, self.janelaPrincipal.winfo_y() + DY))
 
-    def solicitarMatricula(self):
+    def solicitarMatricula(self, cancelar = False):
         # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
+        # TODO: SEPARAR SOLICITAR DE CANCELAR E SE POSSIVEL CRIAR UMA CLASSE PARA FACILITAR ISSO
+        if self.__janelaSolicitar != None:
+            self.__janelaSolicitar.destroy()
+
         self.criarJanela()
 
         self.__listaDisciplinas = tk.Listbox(self.__janelaSolicitar)
@@ -526,8 +525,8 @@ class Matricula:
                                         "Nono Semestre",
                                         "Decimo Semestre"]
         self.__boxSemestre.current(0)
-        self.__mudarSemestre()
-        self.__boxSemestre.bind("<<ComboboxSelected>>", self.__mudarSemestre)
+        self.__mudarSemestre(cancelar=cancelar)
+        self.__boxSemestre.bind("<<ComboboxSelected>>", lambda evt : self.__mudarSemestre(evt, cancelar=cancelar))
 
         __addButton = tk.Button(self.__janelaSolicitar)
         __addButton['text'] = ">>"
@@ -537,9 +536,15 @@ class Matricula:
         __removerButton['text'] = "<<"
         __removerButton['command'] = self.removerDisciplina
 
-        __solicitarButton = tk.Button(self.__janelaSolicitar)
-        __solicitarButton['text'] = "Solicitar Matricula"
-        __solicitarButton['command'] = self.confirmarSolicitacao
+
+        if cancelar == False:
+            __solicitarButton = tk.Button(self.__janelaSolicitar)
+            __solicitarButton['text'] = "Solicitar Matricula"
+            __solicitarButton['command'] = self.confirmarSolicitacao
+        else:
+            __cancelarButton = tk.Button(self.__janelaSolicitar)
+            __cancelarButton['text'] = "Solicitar Matricula"
+            __cancelarButton['command'] = self.confirmarCancelamento
 
         __labelSemestre.grid(row=0, column=0)
         self.__boxSemestre.grid(row=1, column=0)
@@ -547,9 +552,13 @@ class Matricula:
         self.__listaSelecionados.grid(row=2, column=2, rowspan=2)
         __addButton.grid(row=2, column=1, sticky='s')
         __removerButton.grid(row=3, column=1, sticky='n')
-        __solicitarButton.grid(row=4, column=1)
+        if cancelar == False:
+            __solicitarButton.grid(row=4, column=1)
+        else:
+            __cancelarButton.grid(row=4, column=1)
 
-    def cancelarMatricula(self):
+    def confirmarCancelamento(self):
+
         select = ''' SELECT idDisciplina FROM DISCIPLINA WHERE codigo = %d''' \
                  % int(self.__disciplinasSelecionadas[0][:4])
 
@@ -564,7 +573,7 @@ class Matricula:
         self.DB.commit()
         cursor.close()
 
-    def __mudarSemestre(self, evt=None):
+    def __mudarSemestre(self, evt=None, cancelar = False):
         if isinstance(evt, tk.Event):
             widget = evt.widget
         else:
@@ -580,8 +589,8 @@ class Matricula:
                         "Oitavo Semestre": 8,
                         "Nono Semestre": 9,
                         "Decimo Semestre": 10}
-
-        select = '''SELECT DISCIPLINA.codigo, DISCIPLINA.nome
+        if cancelar == False:
+            select = '''SELECT DISCIPLINA.codigo, DISCIPLINA.nome
 FROM DISCIPLINA
 WHERE idDisciplina != ALL(SELECT idDisciplina
                           FROM DISCIPLINA_ALUNO
@@ -591,29 +600,35 @@ WHERE idDisciplina != ALL(SELECT idDisciplina
 AND semestreGrade = %d;''' \
                  % (self.__idAluno, mapaSemestre[widget.get()])
 
-        cursor = self.DB.cursor()
-        cursor.execute(select)
+            cursor = self.DB.cursor()
+            cursor.execute(select)
 
-        listaDisciplinas = []
+            listaDisciplinas = []
 
-        for disciplina in cursor.fetchall():
-            # Cria uma lista de tuplas: (codigoDisciplina, nome)
-            tmp = str(disciplina[0]) + ' - ' + disciplina[1]
-            if tmp not in self.__disciplinasSelecionadas:
-                listaDisciplinas.append(tmp)
-            else:
-                continue
-        # TODO: faze sort ignorando o codigo
-        cursor.close()
-        listaDisciplinas.sort()
+            for disciplina in cursor.fetchall():
+                # Cria uma lista de tuplas: (codigoDisciplina, nome)
+                tmp = str(disciplina[0]) + ' - ' + disciplina[1]
+                if tmp not in self.__disciplinasSelecionadas:
+                    listaDisciplinas.append(tmp)
+                else:
+                    continue
+            # TODO: faze sort ignorando o codigo
+            cursor.close()
+            listaDisciplinas.sort()
 
-        self.__listaSelecionados.delete(0, 'end')
-        for disciplina in self.__disciplinasSelecionadas:
-            self.__listaSelecionados.insert('end', disciplina)
+            self.__listaSelecionados.delete(0, 'end')
+            for disciplina in self.__disciplinasSelecionadas:
+                self.__listaSelecionados.insert('end', disciplina)
 
-        self.__listaDisciplinas.delete(0, 'end')
-        for disciplina in listaDisciplinas:
-            self.__listaDisciplinas.insert('end', disciplina)
+            self.__listaDisciplinas.delete(0, 'end')
+            for disciplina in listaDisciplinas:
+                self.__listaDisciplinas.insert('end', disciplina)
+        else:
+            self.carregarDisciplinas()
+
+            self.__listaDisciplinas.delete(0, 'end')
+            for disciplina in self.disciplinasSolicitadas:
+                self.__listaDisciplinas.insert('end', disciplina)
 
     def adicionarDisciplina(self):
         if len(self.__listaDisciplinas.curselection()) == 0:
@@ -669,10 +684,13 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
             cursor.execute(insert)
             self.DB.commit()
         cursor.close()
-        self.__disciplinasSelecionadas.empty()
+        self.__disciplinasSelecionadas.clear()
+        self.carregarDisciplinas()
 
     def verHistorico(self):
         self.criarJanela()
+
+
         cursor = self.DB.cursor()
         situacao = {1: "PROCESSANDO",
                     2: "CURSANDO",
