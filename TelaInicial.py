@@ -26,6 +26,10 @@ class TelaInicial(tk.Tk):
         self.__openWindows = []
         self.__alunoLogado = None
         self.__loginFrame = tk.LabelFrame(self)
+        self.__topLoginMenu = None
+        self.__topMatriculaMenu = None
+        self.__topBoletoMenu = None
+        self.__loginButton = None
 
         self.topmenu()
         self.loginWindow()
@@ -111,7 +115,7 @@ class TelaInicial(tk.Tk):
             self.alunoLogado = Login(janelaPrincipal=self,
                                      usuario=self.__usuarioVar,
                                      widgets=widgets)
-        except sql.err.OperationalError as error:
+        except sql.err.OperationalError:
             messagebox.showerror(title="Conexão ao Banco", message="Falha ao se conectar ao Banco de Dados",
                                  parent=self)
 
@@ -122,8 +126,11 @@ class TelaInicial(tk.Tk):
             # Top Menus de Login
             self.__topLoginMenu.add_command(label="Alterar Senha", command=self.alunoLogado.alterarSenhaWindow)
             self.__topLoginMenu.add_command(label="Encerrar Sessão", command=self.alunoLogado.encerrarsessao)
+
             self.__topMatriculaMenu.add_command(label="Solicitar Matricula",
                                                 command=self.alunoLogado.aluno.solicitarMatricula)
+            self.__topMatriculaMenu.add_command(label="Cancelar Solicitação de Matricula",
+                                                command=self.alunoLogado.aluno.cancelarMatricula)
             self.__topMatriculaMenu.add_command(label="Ver Historico", command=self.alunoLogado.aluno.verHistorico)
 
             # Top Menus do Aluno
@@ -135,7 +142,7 @@ class TelaInicial(tk.Tk):
     def deslogar(self):
         # TODO: adicionar todos os top menus que forem adicionados após o login
         self.__topLoginMenu.delete(0, 1)
-        self.__topMatriculaMenu.delete(0, 1)
+        self.__topMatriculaMenu.delete(0, 1, 2)
         self.__loginButton['state'] = 'normal'
 
     @property
@@ -148,21 +155,21 @@ class TelaInicial(tk.Tk):
 
     @property
     def alunoLogado(self):
+        print("GETTER")
         return self.__alunoLogado
 
     @alunoLogado.setter
     def alunoLogado(self, aluno):
+        print("SETTER")
         self.__alunoLogado = aluno
 
 
 class Login:
     def __init__(self, janelaPrincipal, usuario, widgets):
-        '''
-        Classe responsavel por fazer o Login no sistema e operações relacionadas com login.
+        """ Classe responsavel por fazer o Login no sistema e operações relacionadas com login.
         usuario -> Variavel que observa o widget usuarioEntry
         senha -> Variavel que observa o widget senhaEntry
-        widgets -> os widgets de usuario e senha, respectivamente. Utilizados para alteração de estado do widget
-        '''
+        widgets -> os widgets de usuario e senha, respectivamente. Utilizados para alteração de estado do widget."""
 
         self.janelaPrincipal = janelaPrincipal
         self.__widgets = widgets
@@ -185,39 +192,27 @@ class Login:
         idAluno = cursor.fetchone()
 
         if idAluno is not None:
-            '''Caso exista um retorno no select, signifca que o login esta correto.
+            """
+            Caso exista um retorno no select, signifca que o login esta correto.
             Em caso de o login estiver correto, os dados do Aluno são consultados no banco, e se retorna True,
             indicando que houve sucesso no login.
             Em caso de o login estiver incorreto, retorna False indicando falha no Login
             Então é feito o bloqueio de digitação nos campos de usuario e senha, e aparecem os botões de:
             -Deslogar
-            -Alterar senha'''
+            -Alterar senha
+            """
 
-            cursor.close()
             self.__widgets[0]['state'] = 'disabled'
             self.__widgets[1]['state'] = 'disabled'
-            # REMOVER APARTIR DAQUI (CASO OPTAR POR DEIXAR ESTAS OPÇÕES APENAS NO TOP MENU)
-            self.deslogarButton = tk.Button(self.__widgets[0].master)
-            self.deslogarButton['text'] = 'Encerrar Sessão'
-            self.deslogarButton['command'] = self.encerrarsessao
-            # self.deslogarButton.grid(row=5, column=0)
 
-            self.alterarSenha = tk.Button(self.__widgets[0].master)
-            self.alterarSenha['text'] = "Alterar Senha"
-            self.alterarSenha['command'] = self.alterarSenhaWindow
-            # self.alterarSenha.grid(row=7, column=0)
-            # REMOVER ATÉ AQUI!
-
-            cursor = self.DB.cursor()
-            select = "SELECT * FROM ALUNO WHERE idAluno = %d;" % (idAluno)
+            select = "SELECT * FROM ALUNO WHERE idAluno = %d;" % idAluno
 
             cursor.execute(select)
 
             tmp = cursor.fetchone()
-
+            cursor.close()
             self.__aluno = Aluno(self.janelaPrincipal, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4])
             self.__aluno.logado = True
-
             return True
 
         else:
@@ -264,10 +259,8 @@ class Login:
 
         __confirmar = tk.Button(__frameMudaSenha)
         __confirmar['text'] = "Confirmar"
-        __confirmar['command'] = lambda sav=__senhaAtualVar, \
-                                        nsv=__novaSenhaVar, \
-                                        cnsv=__confNovaSenhaVar, \
-                                        frame=__frameMudaSenha: self.alterarsenhacommit(sav, nsv, cnsv, frame)
+        __confirmar['command'] = lambda sav=__senhaAtualVar, nsv=__novaSenhaVar, cnsv=__confNovaSenhaVar, frame=\
+            __frameMudaSenha: self.alterarsenhacommit(sav, nsv, cnsv, frame)
         __cancelar = tk.Button(__frameMudaSenha)
         __cancelar['text'] = "Cancelar"
         __cancelar['command'] = __frameMudaSenha.destroy
@@ -283,8 +276,8 @@ class Login:
         __novaSenhaEntry.grid(row=3, column=0)
         __confNovaSenhaEntry.grid(row=5, column=0)
 
-        __confirmar.grid(row=6, column=0, sticky=('sw'))
-        __cancelar.grid(row=6, column=0, sticky=('se'))
+        __confirmar.grid(row=6, column=0, sticky='sw')
+        __cancelar.grid(row=6, column=0, sticky='se')
         return
 
     def alterarsenhacommit(self, senhaAtualVar, novaSenhaVar, confNovaSenhaVar, frame):
@@ -315,9 +308,12 @@ class Login:
                           )
                 cursor.execute(update)
                 self.DB.commit()
+                cursor.close()
+
                 messagebox.showinfo(title="Sucesso!", message="Senha Alterada com suceso.", parent=frame)
                 frame.destroy()
             else:
+                cursor.close()
                 messagebox.showerror(title='Login Incorreto!', message='Senha incorreta.', parent=frame)
                 senhaAtualVar.set("")
                 novaSenhaVar.set("")
@@ -386,6 +382,9 @@ class Aluno:
     def solicitarMatricula(self):
         self.__matriculado.solicitarMatricula()
 
+    def cancelarMatricula(self):
+        self.__matriculado.cancelarMatricula()
+
     def verHistorico(self):
         self.__matriculado.verHistorico()
 
@@ -448,24 +447,51 @@ class Disciplina:
         self.__numCreditos = numCreditos
         self.__codigo = codigo
         self.__nome = nome
-        self.__horario
+        self.__horario = horario
         pass
 
 
 class Matricula:
+    # TODO: Adicionar Menu para cancelar Soliciatação de Matricula.
+    # TODO: Separar Solicitação de Cancelamento de Solicitação de Matricula.
+    # TODO: Criar função de cancelamento.
     def __init__(self, janelaPrincipal, idAluno, curso):
         self.janelaPrincipal = janelaPrincipal
         self.__curso = curso
         self.__idAluno = idAluno
 
         self.DB = ConexaoBanco()
-        self.disciplinasSelecionadas = []
+        self.__disciplinasSelecionadas = []
+        self.disciplinasSolicitadas = []
+
         self.__janelaSolicitar = None
         self.__listaDisciplinas = None
         self.__listaSelecionados = None
         self.__boxSemestre = None
 
-        # TODO: Filtrar Materias que constam como APROVADAS para não aparecerem para seleção
+        self.carregarDisciplinas()
+
+    def carregarDisciplinas(self):
+        # Verifica se já existe alguma materia com situação igual a PROCESSANDO
+        cursor = self.DB.cursor()
+
+        select = ''' SELECT DISCIPLINA.codigo, disciplina.nome
+        FROM DISCIPLINA
+               JOIN DISCIPLINA_ALUNO
+                 ON DISCIPLINA.IDDISCIPLINA = DISCIPLINA_ALUNO.IDDISCIPLINA
+        WHERE DISCIPLINA_ALUNO.IDALUNO = %d
+          AND DISCIPLINA_ALUNO.SITUACAO = 1;''' % self.__idAluno
+
+        cursor.execute(select)
+        disciplinasSelecionadas = cursor.fetchall()
+
+        if len(disciplinasSelecionadas) == 0:
+            # Não possui disciplinas com status PROCESSANDO
+            pass
+        else:
+            for disciplina in disciplinasSelecionadas:
+                self.disciplinasSolicitadas.append(str(disciplina[0]) + ' - ' + disciplina[1])
+        cursor.close()
 
     def criarJanela(self):
         self.__janelaSolicitar = tk.Toplevel(self.janelaPrincipal)
@@ -500,8 +526,8 @@ class Matricula:
                                         "Nono Semestre",
                                         "Decimo Semestre"]
         self.__boxSemestre.current(0)
-        self.mudarSemestre()
-        self.__boxSemestre.bind("<<ComboboxSelected>>", self.mudarSemestre)
+        self.__mudarSemestre()
+        self.__boxSemestre.bind("<<ComboboxSelected>>", self.__mudarSemestre)
 
         __addButton = tk.Button(self.__janelaSolicitar)
         __addButton['text'] = ">>"
@@ -519,11 +545,26 @@ class Matricula:
         self.__boxSemestre.grid(row=1, column=0)
         self.__listaDisciplinas.grid(row=2, column=0, rowspan=2)
         self.__listaSelecionados.grid(row=2, column=2, rowspan=2)
-        __addButton.grid(row=2, column=1, sticky=('s'))
-        __removerButton.grid(row=3, column=1, sticky=('n'))
+        __addButton.grid(row=2, column=1, sticky='s')
+        __removerButton.grid(row=3, column=1, sticky='n')
         __solicitarButton.grid(row=4, column=1)
 
-    def mudarSemestre(self, evt=None):
+    def cancelarMatricula(self):
+        select = ''' SELECT idDisciplina FROM DISCIPLINA WHERE codigo = %d''' \
+                 % int(self.__disciplinasSelecionadas[0][:4])
+
+        print(select)
+        cursor = self.DB.cursor()
+        cursor.execute(select)
+
+        delet = ''' DELETE FROM disciplina_aluno where idDisciplina = %d''' % cursor.fetchone()[0]
+
+        cursor.execute(delet)
+
+        self.DB.commit()
+        cursor.close()
+
+    def __mudarSemestre(self, evt=None):
         if isinstance(evt, tk.Event):
             widget = evt.widget
         else:
@@ -550,8 +591,6 @@ WHERE idDisciplina != ALL(SELECT idDisciplina
 AND semestreGrade = %d;''' \
                  % (self.__idAluno, mapaSemestre[widget.get()])
 
-        print(select)
-
         cursor = self.DB.cursor()
         cursor.execute(select)
 
@@ -560,15 +599,16 @@ AND semestreGrade = %d;''' \
         for disciplina in cursor.fetchall():
             # Cria uma lista de tuplas: (codigoDisciplina, nome)
             tmp = str(disciplina[0]) + ' - ' + disciplina[1]
-            if tmp not in self.disciplinasSelecionadas:
+            if tmp not in self.__disciplinasSelecionadas:
                 listaDisciplinas.append(tmp)
             else:
                 continue
         # TODO: faze sort ignorando o codigo
+        cursor.close()
         listaDisciplinas.sort()
 
         self.__listaSelecionados.delete(0, 'end')
-        for disciplina in self.disciplinasSelecionadas:
+        for disciplina in self.__disciplinasSelecionadas:
             self.__listaSelecionados.insert('end', disciplina)
 
         self.__listaDisciplinas.delete(0, 'end')
@@ -581,11 +621,11 @@ AND semestreGrade = %d;''' \
 
         selecionado = self.__listaDisciplinas.get(self.__listaDisciplinas.curselection()[0])
 
-        if selecionado in self.disciplinasSelecionadas:
+        if selecionado in self.__disciplinasSelecionadas:
             return
         else:
             self.__listaDisciplinas.delete(self.__listaDisciplinas.curselection()[0])
-            self.disciplinasSelecionadas.append(selecionado)
+            self.__disciplinasSelecionadas.append(selecionado)
             self.__listaSelecionados.insert('end', selecionado)
 
     def removerDisciplina(self):
@@ -595,8 +635,9 @@ AND semestreGrade = %d;''' \
         if len(index) > 0:
             index = index[0]
             self.__listaSelecionados.delete(index)
-            self.disciplinasSelecionadas.remove(self.disciplinasSelecionadas[index])
-            self.mudarSemestre()
+
+            self.__disciplinasSelecionadas.remove(self.__disciplinasSelecionadas[index])
+            self.__mudarSemestre()
 
         else:
             pass
@@ -606,7 +647,7 @@ AND semestreGrade = %d;''' \
         self.__janelaSolicitar.destroy()
 
         cursor = self.DB.cursor()
-        for disciplina in self.disciplinasSelecionadas:
+        for disciplina in self.__disciplinasSelecionadas:
             cursor.execute('''SELECT idDisciplina FROM DISCIPLINA WHERE codigo = %d;''' % int(disciplina[:5]))
             idDisciplina = cursor.fetchone()[0]
 
@@ -627,6 +668,8 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
 
             cursor.execute(insert)
             self.DB.commit()
+        cursor.close()
+        self.__disciplinasSelecionadas.empty()
 
     def verHistorico(self):
         self.criarJanela()
@@ -688,7 +731,7 @@ from DISCIPLINA_ALUNO
          ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
        JOIN SEMESTRE_DISCIPLINA
          ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % (self.__idAluno)
+WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
 
         cursor.execute(select)
 
@@ -702,6 +745,7 @@ WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % (self.__idAluno)
 
             historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
 
+        cursor.close()
         historico.pack()
 
 
