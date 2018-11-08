@@ -18,8 +18,11 @@ class FramesMatricula(tk.LabelFrame):
     def __init__(self, master, metodos, *arg, **kwarg):
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
         # TODO: Fazer bind para fechar frames com o ESC, mas não destruir a classe.
+
+        self.focus()
         self._janelaPrincipal = master
         self._metodos = metodos
+        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self.grid_remove())
 
         self._boxDisciplinas = None
         self._boxSelecionados = None
@@ -27,6 +30,19 @@ class FramesMatricula(tk.LabelFrame):
 
         self._listaDisciplinas = tk.Variable()
         self._listaSelecionados = tk.Variable()
+
+    @staticmethod
+    def _retag(tag, *widgets):
+        """
+        Adiciona uma tag especifica aos widigets passados, para bindar o evento "<Escape>" que
+        esconde a janela aberta (em foco).
+
+        :param tag: Nome da tag que sera adicionada aos widgets
+        :param widgets: Widgets que iram receber a tag
+        :return: VOID
+        """
+        for widget in widgets:
+            widget.bindtags((tag,) + widget.bindtags())
 
     def frameSolicitar(self):
         # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
@@ -96,6 +112,18 @@ class FramesMatricula(tk.LabelFrame):
 
         self._boxSemestre.event_generate("<<ComboboxSelected>>")
 
+        self._retag('frameMatricula',
+                    self,
+                    _labelSelecionados,
+                    _labelDisciplinas,
+                    _labelSemestre,
+                    _addButton,
+                    _removerButton,
+                    _confirmarButton,
+                    self._boxSelecionados,
+                    self._boxDisciplinas,
+                    self._boxSemestre)
+
     def _adicionarDisciplina(self):
         index = self.boxDisciplinas.curselection()
 
@@ -115,6 +143,7 @@ class FramesMatricula(tk.LabelFrame):
                 disciplinasSelecionadas.append(selecionado)
                 disciplinasSelecionadas.sort()
                 self.listaSelecionados = disciplinasSelecionadas
+        print(self.listaSelecionados)
 
     def _removerDisciplina(self):
         index = self.boxSelecionados.curselection()
@@ -123,8 +152,18 @@ class FramesMatricula(tk.LabelFrame):
             return
         else:
             index = index[0]
+            select =self.boxSelecionados.get(index)
+            tmp = self.listaDisciplinas
+            tmp.append(select)
+            tmp.sort()
+            self.listaDisciplinas = tmp
             self.boxSelecionados.delete(index)
-            self.boxSemestre.event_generate("<<ComboboxSelected>>")
+
+            # if self.boxSemestre is not None:
+            #             #     self.boxSemestre.event_generate("<<ComboboxSelected>>")
+            #             # else:
+
+
 
     def frameCancelar(self):
         # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM CANCELAR MATRICULA
@@ -169,6 +208,16 @@ class FramesMatricula(tk.LabelFrame):
         _addButton.grid(row=1, column=1, sticky='n')
         _removerButton.grid(row=1, column=1, sticky='s')
         _confirmarButton.grid(row=3, column=1, sticky='s')
+
+        self._retag('frameMatricula',
+                    self,
+                    _labelSelecionados,
+                    _labelDisciplinas,
+                    _addButton,
+                    _removerButton,
+                    _confirmarButton,
+                    self._boxSelecionados,
+                    self._boxDisciplinas)
 
     def frameHistorico(self):
 

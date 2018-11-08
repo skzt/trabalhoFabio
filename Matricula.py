@@ -23,17 +23,19 @@ class Matricula:
         metodos = {"mudarSemestre": self._mudarSemestre,
                    "confirmarSolicitacao": self._confirmarSolicitacao
                    }
-
-        self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
-        self._frameSolicitacao.frameSolicitar()
+        if self._frameSolicitacao is None:
+            self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
+            self._frameSolicitacao.frameSolicitar()
         self._frameSolicitacao.grid(row=0, column=1, sticky='n')
+
 
     def cancelarMatricula(self):
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
 
-        self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
-        self._carregarProcessando()
-        self._frameCancelamento.frameCancelar()
+        if self._frameCancelamento is None:
+            self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
+            self._carregarProcessando()
+            self._frameCancelamento.frameCancelar()
         self._frameCancelamento.grid(row=0, column=1, sticky='n')
 
     def _carregarProcessando(self):
