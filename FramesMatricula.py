@@ -17,7 +17,7 @@ class FramesMatricula(tk.LabelFrame):
     # TODO: Criar menu para alternar entre janelas na GRID
     def __init__(self, master, metodos, *arg, **kwarg):
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
-
+        # TODO: Fazer bind para fechar frames com o ESC, mas não destruir a classe.
         self._janelaPrincipal = master
         self._metodos = metodos
 
@@ -69,17 +69,17 @@ class FramesMatricula(tk.LabelFrame):
         self._boxSelecionados = tk.Listbox(self)
         self._boxSelecionados['listvariable'] = self._listaSelecionados
 
-        __addButton = tk.Button(self)
-        __addButton['text'] = ">>"
-        __addButton['command'] = self._adicionarDisciplina
+        _addButton = tk.Button(self)
+        _addButton['text'] = ">>"
+        _addButton['command'] = self._adicionarDisciplina
 
-        __removerButton = tk.Button(self)
-        __removerButton['text'] = "<<"
-        __removerButton['command'] = self._removerDisciplina
+        _removerButton = tk.Button(self)
+        _removerButton['text'] = "<<"
+        _removerButton['command'] = self._removerDisciplina
 
-        __confirmarButton = tk.Button(self)
-        __confirmarButton['text'] = "Solicitar Matricula"
-        __confirmarButton['command'] = self._metodos["confirmarSolicitacao"]
+        _confirmarButton = tk.Button(self)
+        _confirmarButton['text'] = "Solicitar Matricula"
+        _confirmarButton['command'] = self._metodos["confirmarSolicitacao"]
 
         _labelSemestre.grid(row=0, column=0)
         self._boxSemestre.grid(row=1, column=0)
@@ -90,9 +90,9 @@ class FramesMatricula(tk.LabelFrame):
         _labelSelecionados.grid(row=2, column=2)
         self._boxSelecionados.grid(row=3, column=2, rowspan=2)
 
-        __addButton.grid(row=2, column=1, sticky='s')
-        __removerButton.grid(row=3, column=1, sticky='n')
-        __confirmarButton.grid(row=5, column=1, sticky='n')
+        _addButton.grid(row=3, column=1, sticky='n')
+        _removerButton.grid(row=3, column=1, sticky='s')
+        _confirmarButton.grid(row=5, column=1, sticky='n')
 
         self._boxSemestre.event_generate("<<ComboboxSelected>>")
 
@@ -148,17 +148,17 @@ class FramesMatricula(tk.LabelFrame):
         self._boxSelecionados = tk.Listbox(self)
         self._boxSelecionados['listvariable'] = self._listaSelecionados
 
-        __addButton = tk.Button(self)
-        __addButton['text'] = ">>"
-        __addButton['command'] = self._adicionarDisciplina
+        _addButton = tk.Button(self)
+        _addButton['text'] = ">>"
+        _addButton['command'] = self._adicionarDisciplina
 
-        __removerButton = tk.Button(self)
-        __removerButton['text'] = "<<"
-        __removerButton['command'] = self._removerDisciplina
+        _removerButton = tk.Button(self)
+        _removerButton['text'] = "<<"
+        _removerButton['command'] = self._removerDisciplina
 
-        __confirmarButton = tk.Button(self)
-        __confirmarButton['text'] = "Cancelar Matricula"
-        __confirmarButton['command'] = self._metodos["confirmarCancelamento"]
+        _confirmarButton = tk.Button(self)
+        _confirmarButton['text'] = "Cancelar Matricula"
+        _confirmarButton['command'] = self._metodos["confirmarCancelamento"]
 
         _labelDisciplinas.grid(row=0, column=0)
         self._boxDisciplinas.grid(row=1, column=0, rowspan=3)
@@ -166,12 +166,86 @@ class FramesMatricula(tk.LabelFrame):
         _labelSelecionados.grid(row=0, column=2)
         self._boxSelecionados.grid(row=1, column=2, rowspan=3)
 
-        __addButton.grid(row=1, column=1, sticky='s')
-        __removerButton.grid(row=1, column=1, sticky='n')
-        __confirmarButton.grid(row=3, column=1, sticky='s')
+        _addButton.grid(row=1, column=1, sticky='n')
+        _removerButton.grid(row=1, column=1, sticky='s')
+        _confirmarButton.grid(row=3, column=1, sticky='s')
 
-    def janelaHistorico(self):
-        pass
+    def frameHistorico(self):
+
+        cursor = self.DB.cursor()
+        situacao = {1: "PROCESSANDO",
+                    2: "CURSANDO",
+                    3: "RECUSADO",
+                    4: "APROVEITAMENTO DE CREDITO",
+                    5: "APROVADO",
+                    6: "REPROVADO",
+                    7: "REPROVADO POR FALTA"}
+
+        mapaSemestre = {1: "Primeiro Semestre",
+                        2: "Segundo Semestre",
+                        3: "Terceiro Semestre",
+                        4: "Quarto Semestre",
+                        5: "Quinto Semestre",
+                        6: "Sexto Semestre",
+                        7: "Setimo Semestre",
+                        8: "Oitavo Semestre",
+                        9: "Nono Semestre",
+                        10: "Decimo Semestre"}
+
+        semestres = {}
+
+        historico = ttk.Treeview(self.__janelaSolicitar,
+                                 columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
+        historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
+
+        historico.column('#0', width=140)
+
+        historico.heading('Codigo', text="Codigo")
+        historico.column('Codigo', width=100, anchor='center')
+
+        historico.heading('Disciplina', text='Disciplina')
+        historico.column('Disciplina', width=250, anchor='center')
+
+        historico.heading('Periodo', text='Periodo')
+        historico.column('Periodo', width=100, anchor='center')
+
+        historico.heading('Nota', text='Nota')
+        historico.column('Nota', width=70, anchor='center')
+
+        historico.heading('Créditos', text='Créditos')
+        historico.column('Créditos', width=70, anchor='center')
+
+        historico.heading('Situação', text='Situação')
+        historico.column('Situação', width=100, anchor='center')
+
+        select = '''select DISCIPLINA.semestreGrade,
+               DISCIPLINA.codigo,
+               DISCIPLINA.nome,
+               SEMESTRE_DISCIPLINA.semestre,
+               DISCIPLINA_ALUNO.nota,
+               DISCIPLINA.numCredito,
+               DISCIPLINA_ALUNO.situacao
+        from DISCIPLINA_ALUNO
+               JOIN DISCIPLINA
+                 ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
+               JOIN SEMESTRE_DISCIPLINA
+                 ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
+        WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+
+        cursor.execute(select)
+
+        for disciplina in cursor.fetchall():
+            disciplina = list(disciplina)
+
+            if disciplina[0] not in semestres:
+                semestres[disciplina[0]] = historico.insert('', 'end', text=mapaSemestre[disciplina[0]])
+
+            disciplina[6] = situacao[disciplina[6]]
+
+            historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
+
+        cursor.close()
+        historico.pack()
 
     def __del__(self):
         print("oiiiiiiiiiiiiii frame")
@@ -204,7 +278,6 @@ class FramesMatricula(tk.LabelFrame):
     @listaSelecionados.setter
     def listaSelecionados(self, lista):
         self._listaSelecionados.set(lista)
-
 
 
 

@@ -6,8 +6,6 @@ from FramesMatricula import FramesMatricula
 
 
 class Matricula:
-    # TODO: Separar Solicitação de Cancelamento de Solicitação de Matricula.
-    # TODO: Criar função de cancelamento.
     def __init__(self, janelaPrincipal, idAluno, curso):
         self.janelaPrincipal = janelaPrincipal
         self.__curso = curso
@@ -20,29 +18,6 @@ class Matricula:
         self._frameHorario = None
 
         # self.carregarDisciplinas()
-
-    def carregarDisciplinas(self):
-        # Verifica se já existe alguma materia com situação igual a PROCESSANDO
-        self.disciplinasSolicitadas.clear()
-        cursor = self.DB.cursor()
-
-        select = ''' SELECT DISCIPLINA.codigo, DISCIPLINA.nome
-        FROM DISCIPLINA
-               JOIN DISCIPLINA_ALUNO
-                 ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
-        WHERE DISCIPLINA_ALUNO.idAluno = %d
-          AND DISCIPLINA_ALUNO.situacao = 1;''' % self.__idAluno
-
-        cursor.execute(select)
-        disciplinasSelecionadas = cursor.fetchall()
-
-        if len(disciplinasSelecionadas) == 0:
-            # Não possui disciplinas com status PROCESSANDO
-            pass
-        else:
-            for disciplina in disciplinasSelecionadas:
-                self.disciplinasSolicitadas.append(str(disciplina[0]) + ' - ' + disciplina[1])
-        cursor.close()
 
     def solicitarMatricula(self):
         metodos = {"mudarSemestre": self._mudarSemestre,
@@ -57,23 +32,70 @@ class Matricula:
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
 
         self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
+        self._carregarProcessando()
         self._frameCancelamento.frameCancelar()
         self._frameCancelamento.grid(row=0, column=1, sticky='n')
 
-    def _confirmarCancelamento(self):
-        select = ''' SELECT idDisciplina FROM DISCIPLINA WHERE codigo = %d''' \
-                 % int(self.__disciplinasSelecionadas[0][:4])
+    def _carregarProcessando(self):
+        """
+        Verifica se já existe alguma materia com situação igual a PROCESSANDO
+        """
 
-        print(select)
+        cursor = self.DB.cursor()
+
+        select = ''' SELECT DISCIPLINA.codigo, DISCIPLINA.nome
+        FROM DISCIPLINA
+               JOIN DISCIPLINA_ALUNO
+                 ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
+        WHERE DISCIPLINA_ALUNO.idAluno = %d
+          AND DISCIPLINA_ALUNO.situacao = 1;''' % self.__idAluno
+
+        cursor.execute(select)
+        disciplinasProcessadas = cursor.fetchall()
+
+        if len(disciplinasProcessadas) == 0:
+            # Não possui disciplinas com status PROCESSANDO
+            pass
+        else:
+            tmp = []
+            for disciplina in disciplinasProcessadas:
+                tmp.append(str(disciplina[0]) + ' - ' + disciplina[1])
+            self._frameCancelamento.listaDisciplinas = tmp
+
+        cursor.close()
+
+    def _confirmarCancelamento(self):
+        self.janelaPrincipal.focus()
+        self._frameCancelamento.grid_remove()
+
+        select = ''' select DISCIPLINA.codigo, DISCIPLINA.idDisciplina
+from DISCIPLINA
+       JOIN DISCIPLINA_ALUNO
+         ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
+WHERE DISCIPLINA_ALUNO.situacao = 1
+  AND DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+
         cursor = self.DB.cursor()
         cursor.execute(select)
 
-        delet = ''' DELETE FROM disciplina_aluno where idDisciplina = %d''' % cursor.fetchone()[0]
+        disciplinasCancelar = {}
 
-        cursor.execute(delet)
+        for disciplina in cursor.fetchall():
+            disciplinasCancelar[disciplina[0]] = disciplina[1]
+
+        print(disciplinasCancelar)
+
+        for disciplina in self._frameCancelamento.listaSelecionados:
+            delet = ''' DELETE FROM DISCIPLINA_ALUNO where idDisciplina = %d''' \
+                    % disciplinasCancelar[int(disciplina[:4])]
+            cursor.execute(delet)
 
         self.DB.commit()
         cursor.close()
+
+        self.janelaPrincipal.openWindows.remove(self._frameCancelamento)
+        self._frameCancelamento.destroy()
+        del self._frameCancelamento
 
     def _mudarSemestre(self, evt):
         widget = evt.widget
@@ -148,83 +170,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
         self._frameSolicitacao.destroy()
         del self._frameSolicitacao
 
-
     def verHistorico(self):
-        self.criarJanela()
-
-        cursor = self.DB.cursor()
-        situacao = {1: "PROCESSANDO",
-                    2: "CURSANDO",
-                    3: "RECUSADO",
-                    4: "APROVEITAMENTO DE CREDITO",
-                    5: "APROVADO",
-                    6: "REPROVADO",
-                    7: "REPROVADO POR FALTA"}
-
-        mapaSemestre = {1: "Primeiro Semestre",
-                        2: "Segundo Semestre",
-                        3: "Terceiro Semestre",
-                        4: "Quarto Semestre",
-                        5: "Quinto Semestre",
-                        6: "Sexto Semestre",
-                        7: "Setimo Semestre",
-                        8: "Oitavo Semestre",
-                        9: "Nono Semestre",
-                        10: "Decimo Semestre"}
-
-        semestres = {}
-
-        historico = ttk.Treeview(self.__janelaSolicitar,
-                                 columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
-        historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
-
-        historico.column('#0', width=140)
-
-        historico.heading('Codigo', text="Codigo")
-        historico.column('Codigo', width=100, anchor='center')
-
-        historico.heading('Disciplina', text='Disciplina')
-        historico.column('Disciplina', width=250, anchor='center')
-
-        historico.heading('Periodo', text='Periodo')
-        historico.column('Periodo', width=100, anchor='center')
-
-        historico.heading('Nota', text='Nota')
-        historico.column('Nota', width=70, anchor='center')
-
-        historico.heading('Créditos', text='Créditos')
-        historico.column('Créditos', width=70, anchor='center')
-
-        historico.heading('Situação', text='Situação')
-        historico.column('Situação', width=100, anchor='center')
-
-        select = '''select DISCIPLINA.semestreGrade,
-       DISCIPLINA.codigo,
-       DISCIPLINA.nome,
-       SEMESTRE_DISCIPLINA.semestre,
-       DISCIPLINA_ALUNO.nota,
-       DISCIPLINA.numCredito,
-       DISCIPLINA_ALUNO.situacao
-from DISCIPLINA_ALUNO
-       JOIN DISCIPLINA
-         ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
-       JOIN SEMESTRE_DISCIPLINA
-         ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
-
-        cursor.execute(select)
-
-        for disciplina in cursor.fetchall():
-            disciplina = list(disciplina)
-
-            if disciplina[0] not in semestres:
-                semestres[disciplina[0]] = historico.insert('', 'end', text=mapaSemestre[disciplina[0]])
-
-            disciplina[6] = situacao[disciplina[6]]
-
-            historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
-
-        cursor.close()
-        historico.pack()
+        pass
 
 

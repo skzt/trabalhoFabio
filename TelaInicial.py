@@ -62,7 +62,6 @@ class TelaInicial(tk.Tk):
         _topMenuBar.add_cascade(label="Boletos", menu=self._topBoletoMenu)
 
     def loginWindow(self):
-        # TODO: Definir frame separado para lateral de login
         # =======================================================================
         # Janela de Login
         # =======================================================================
@@ -93,7 +92,7 @@ class TelaInicial(tk.Tk):
         _sairButton['text'] = "Ecerrar Aplicação"
         _sairButton['command'] = self.destroy
         _sairButton.bind("<Return>", lambda _: self.destroy())
-        # TODO: Alinhar foco entre sair e demais botões (Sugestão: Tirar botões, deixar apenas no menu)
+
         # =======================================================================
         # Plotando a Janela de Login na Grid
         # =======================================================================
