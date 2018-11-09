@@ -21,12 +21,16 @@ class TelaInicial(tk.Tk):
 
         self._usuarioVar = tk.StringVar()
         self._senhaVar = tk.StringVar()
+        # self._openWindows = tk.Variable()
         self._openWindows = []
+        self._janelaTopo = None
+
         self._alunoLogado = None
         self._loginFrame = tk.LabelFrame(self)
         self._topLoginMenu = None
         self._topMatriculaMenu = None
         self._topBoletoMenu = None
+        self._topJanelaMenu = None
         self._loginButton = None
 
         self.topmenu()
@@ -43,6 +47,7 @@ class TelaInicial(tk.Tk):
         self._topLoginMenu = tk.Menu(self, tearoff=0)
         self._topMatriculaMenu = tk.Menu(self, tearoff=0)
         self._topBoletoMenu = tk.Menu(self, tearoff=0)
+        self._topJanelaMenu = tk.Menu(self, tearoff=0)
 
         # =======================================================================
         # Menu de Login
@@ -60,6 +65,11 @@ class TelaInicial(tk.Tk):
         # Menu de Boletos
         # =======================================================================
         _topMenuBar.add_cascade(label="Boletos", menu=self._topBoletoMenu)
+
+        # =======================================================================
+        # Menu de Controle de Janelas
+        # =======================================================================
+        _topMenuBar.add_cascade(label="Janelas", menu=self._topJanelaMenu)
 
     def loginWindow(self):
         # =======================================================================
@@ -143,13 +153,45 @@ class TelaInicial(tk.Tk):
         self._topMatriculaMenu.delete(0, 2)
         self._loginButton['state'] = 'normal'
 
-    @property
-    def openWindows(self):
-        return self._openWindows
+    def novaJanela(self, nome, janela, **kwargs):
+        """
 
-    @openWindows.setter
-    def openWindows(self, janela):
-        self.openWindows.append(janela)
+        :param nome: Nome da Nova janela.
+        :param janela: Referencia para nova janela.
+        :return: True -> Significa que era de fato uma janela nova.
+                 False -> Significa que não era uma janela nova.
+        """
+
+        if self._janelaTopo is None:
+            self._janelaTopo = janela
+
+        if janela in self._openWindows:
+            self._mudarJanela(janela, **kwargs)
+            return False
+
+        else:
+            self._openWindows.append(janela)
+            self._topJanelaMenu.add_command(label=nome, command=lambda: self._mudarJanela(janela))
+            self._mudarJanela(janela, **kwargs)
+            return True
+
+    def fecharJanela(self):
+        print("FECHAR JANELA")
+        if self._janelaTopo is None:
+            return
+        else:
+            if len(self._openWindows) > 1:
+                self._openWindows.remove(self._janelaTopo)
+                self._mudarJanela(self._openWindows[0])
+            else:
+                self._openWindows.clear()
+                self._janelaTopo.grid_remove()
+
+    def _mudarJanela(self, janela, **kwargs):
+        print(kwargs)
+        self._janelaTopo.grid_remove()
+        self._janelaTopo = janela
+        self._janelaTopo.grid(kwargs)
 
     @property
     def alunoLogado(self):

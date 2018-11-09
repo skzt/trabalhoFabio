@@ -25,9 +25,8 @@ class Matricula:
                    }
         if self._frameSolicitacao is None:
             self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
-            self._frameSolicitacao.frameSolicitar()
-        self._frameSolicitacao.grid(row=0, column=1, sticky='n')
-
+        self._frameSolicitacao.frameSolicitar()
+        #self._frameSolicitacao.grid(row=0, column=1, sticky='n')
 
     def cancelarMatricula(self):
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
@@ -35,12 +34,14 @@ class Matricula:
         if self._frameCancelamento is None:
             self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
             self._carregarProcessando()
-            self._frameCancelamento.frameCancelar()
-        self._frameCancelamento.grid(row=0, column=1, sticky='n')
+        self._frameCancelamento.frameCancelar()
+        #self._frameCancelamento.grid(row=0, column=1, sticky='n')
 
     def _carregarProcessando(self):
         """
-        Verifica se já existe alguma materia com situação igual a PROCESSANDO
+        Verificar se existe alguma disciplina deste aluno com situação == PROCESSANDO
+        e popula a lista _frameCancelamento._listaDisciplinas com essas disciplinas, se houver.
+        :return: VOID
         """
 
         cursor = self.DB.cursor()
@@ -66,39 +67,6 @@ class Matricula:
 
         cursor.close()
 
-    def _confirmarCancelamento(self):
-        self.janelaPrincipal.focus()
-        self._frameCancelamento.grid_remove()
-
-        select = ''' select DISCIPLINA.codigo, DISCIPLINA.idDisciplina
-from DISCIPLINA
-       JOIN DISCIPLINA_ALUNO
-         ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
-WHERE DISCIPLINA_ALUNO.situacao = 1
-  AND DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
-
-        cursor = self.DB.cursor()
-        cursor.execute(select)
-
-        disciplinasCancelar = {}
-
-        for disciplina in cursor.fetchall():
-            disciplinasCancelar[disciplina[0]] = disciplina[1]
-
-        print(disciplinasCancelar)
-
-        for disciplina in self._frameCancelamento.listaSelecionados:
-            delet = ''' DELETE FROM DISCIPLINA_ALUNO where idDisciplina = %d''' \
-                    % disciplinasCancelar[int(disciplina[:4])]
-            cursor.execute(delet)
-
-        self.DB.commit()
-        cursor.close()
-
-        self.janelaPrincipal.openWindows.remove(self._frameCancelamento)
-        self._frameCancelamento.destroy()
-        del self._frameCancelamento
-
     def _mudarSemestre(self, evt):
         widget = evt.widget
 
@@ -121,7 +89,7 @@ WHERE idDisciplina != ALL(SELECT idDisciplina
                             AND DISCIPLINA_ALUNO.situacao != 6
                             AND DISCIPLINA_ALUNO.situacao != 7)
 AND semestreGrade = %d;''' \
-                     % (self.__idAluno, mapaSemestre[widget.get()])
+                 % (self.__idAluno, mapaSemestre[widget.get()])
 
         cursor = self.DB.cursor()
         cursor.execute(select)
@@ -141,8 +109,8 @@ AND semestreGrade = %d;''' \
         self._frameSolicitacao.listaDisciplinas = listaDisciplinas
 
     def _confirmarSolicitacao(self):
-        self.janelaPrincipal.focus()
-        self._frameSolicitacao.grid_remove()
+        self._frameSolicitacao.focus()
+        self.janelaPrincipal.fecharJanela()
 
         cursor = self.DB.cursor()
         for disciplina in self._frameSolicitacao.listaSelecionados:
@@ -168,9 +136,37 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
             self.DB.commit()
         cursor.close()
 
-        self.janelaPrincipal.openWindows.remove(self._frameSolicitacao)
-        self._frameSolicitacao.destroy()
         del self._frameSolicitacao
+
+    def _confirmarCancelamento(self):
+        self._frameCancelamento.focus()
+        self.janelaPrincipal.fecharJanela()
+
+        select = ''' select DISCIPLINA.codigo, DISCIPLINA.idDisciplina
+from DISCIPLINA
+       JOIN DISCIPLINA_ALUNO
+         ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
+WHERE DISCIPLINA_ALUNO.situacao = 1
+  AND DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+
+        cursor = self.DB.cursor()
+        cursor.execute(select)
+
+        disciplinasCancelar = {}
+
+        for disciplina in cursor.fetchall():
+            disciplinasCancelar[disciplina[0]] = disciplina[1]
+
+        for disciplina in self._frameCancelamento.listaSelecionados:
+            delet = ''' DELETE FROM DISCIPLINA_ALUNO where idDisciplina = %d''' \
+                    % disciplinasCancelar[int(disciplina[:4])]
+            cursor.execute(delet)
+
+        self.DB.commit()
+        cursor.close()
+
+        del self._frameCancelamento
+
 
     def verHistorico(self):
         pass

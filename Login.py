@@ -63,7 +63,7 @@ class Login:
 
     def alterarSenhaWindow(self):
         __frameMudaSenha = tk.Toplevel(self.janelaPrincipal)
-        self.janelaPrincipal.openWindows = __frameMudaSenha
+        self.janelaPrincipal.openWindows = ("Alterar Senha", __frameMudaSenha)
         __senhaAtualVar = tk.StringVar()
         __novaSenhaVar = tk.StringVar()
         __confNovaSenhaVar = tk.StringVar()
@@ -169,7 +169,7 @@ class Login:
         self.__widgets[1].delete(0, 'end')
 
         for window in self.janelaPrincipal.openWindows:
-            window.destroy()
+            window[1].destroy()
 
         self.DB.close()
         self.__widgets[0].focus()

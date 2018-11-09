@@ -22,7 +22,7 @@ class FramesMatricula(tk.LabelFrame):
         self.focus()
         self._janelaPrincipal = master
         self._metodos = metodos
-        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self.grid_remove())
+        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self._janelaPrincipal.fecharJanela())
 
         self._boxDisciplinas = None
         self._boxSelecionados = None
@@ -44,13 +44,48 @@ class FramesMatricula(tk.LabelFrame):
         for widget in widgets:
             widget.bindtags((tag,) + widget.bindtags())
 
-    def frameSolicitar(self):
-        # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
-        if self in self._janelaPrincipal.openWindows:
-            # TODO: Trazer frameSolicitar para frente
+    def _adicionarDisciplina(self):
+        index = self.boxDisciplinas.curselection()
+
+        if len(index) == 0:
             return
         else:
-            self._janelaPrincipal.openWindows = self
+            index = index[0]
+
+            selecionado = self.listaDisciplinas[index]
+
+            if selecionado in self.listaSelecionados:
+                return
+            else:
+                self.boxDisciplinas.delete(index)
+
+                disciplinasSelecionadas = self.listaSelecionados
+                disciplinasSelecionadas.append(selecionado)
+                disciplinasSelecionadas.sort()
+                self.listaSelecionados = disciplinasSelecionadas
+        print(self.listaSelecionados)
+
+    def _removerDisciplina(self):
+        index = self.boxSelecionados.curselection()
+
+        if len(index) == 0:
+            return
+        else:
+            index = index[0]
+            select =self.boxSelecionados.get(index)
+            tmp = self.listaDisciplinas
+            tmp.append(select)
+            tmp.sort()
+            self.listaDisciplinas = tmp
+            self.boxSelecionados.delete(index)
+
+            # if self.boxSemestre is not None:
+            #             #     self.boxSemestre.event_generate("<<ComboboxSelected>>")
+            #             # else:
+
+    def frameSolicitar(self):
+        # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
+        self._janelaPrincipal.novaJanela("Solicitar Matricula", self, row=0, column=1, sticky='n')
 
         self['text'] = "Solicitação de Matricula"
         _labelSemestre = tk.Label(self)
@@ -124,54 +159,9 @@ class FramesMatricula(tk.LabelFrame):
                     self._boxDisciplinas,
                     self._boxSemestre)
 
-    def _adicionarDisciplina(self):
-        index = self.boxDisciplinas.curselection()
-
-        if len(index) == 0:
-            return
-        else:
-            index = index[0]
-
-            selecionado = self.listaDisciplinas[index]
-
-            if selecionado in self.listaSelecionados:
-                return
-            else:
-                self.boxDisciplinas.delete(index)
-
-                disciplinasSelecionadas = self.listaSelecionados
-                disciplinasSelecionadas.append(selecionado)
-                disciplinasSelecionadas.sort()
-                self.listaSelecionados = disciplinasSelecionadas
-        print(self.listaSelecionados)
-
-    def _removerDisciplina(self):
-        index = self.boxSelecionados.curselection()
-
-        if len(index) == 0:
-            return
-        else:
-            index = index[0]
-            select =self.boxSelecionados.get(index)
-            tmp = self.listaDisciplinas
-            tmp.append(select)
-            tmp.sort()
-            self.listaDisciplinas = tmp
-            self.boxSelecionados.delete(index)
-
-            # if self.boxSemestre is not None:
-            #             #     self.boxSemestre.event_generate("<<ComboboxSelected>>")
-            #             # else:
-
-
-
     def frameCancelar(self):
         # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM CANCELAR MATRICULA
-        if self in self._janelaPrincipal.openWindows:
-            # TODO: Trazer frameSolicitar para frente
-            return
-        else:
-            self._janelaPrincipal.openWindows = self
+        self._janelaPrincipal.novaJanela("Cancelar Matricula", self, row=0, column=1, sticky='n')
 
         self['text'] = "Cancelar Solicitação de Matricula"
 
