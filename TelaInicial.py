@@ -21,22 +21,22 @@ class TelaInicial(tk.Tk):
 
         self._usuarioVar = tk.StringVar()
         self._senhaVar = tk.StringVar()
-        # self._openWindows = tk.Variable()
+        self._flagJanela = tk.IntVar()
         self._openWindows = []
         self._janelaTopo = None
 
         self._alunoLogado = None
-        self._loginFrame = tk.LabelFrame(self)
+        self._frameLogin = tk.LabelFrame(self)
         self._topLoginMenu = None
         self._topMatriculaMenu = None
         self._topBoletoMenu = None
         self._topJanelaMenu = None
         self._loginButton = None
 
-        self.topmenu()
-        self.loginWindow()
+        self._topMenu()
+        self._loginWindow()
 
-    def topmenu(self):
+    def _topMenu(self):
 
         _topMenuBar = tk.Menu(self)
         self.config(menu=_topMenuBar)
@@ -71,34 +71,34 @@ class TelaInicial(tk.Tk):
         # =======================================================================
         _topMenuBar.add_cascade(label="Janelas", menu=self._topJanelaMenu)
 
-    def loginWindow(self):
+    def _loginWindow(self):
         # =======================================================================
         # Janela de Login
         # =======================================================================
-        _userLabel = tk.Label(self._loginFrame)
+        _userLabel = tk.Label(self._frameLogin)
         _userLabel['text'] = "Usuário:"
 
-        _senhaLabel = tk.Label(self._loginFrame)
+        _senhaLabel = tk.Label(self._frameLogin)
         _senhaLabel['text'] = "Senha:"
 
-        _usuarioEntry = tk.Entry(self._loginFrame)
+        _usuarioEntry = tk.Entry(self._frameLogin)
         _usuarioEntry['textvariable'] = self._usuarioVar
         _usuarioEntry.bind("<Return>", lambda _: _usuarioEntry.tk_focusNext().focus())
         _usuarioEntry.focus()
 
-        _senhaEntry = tk.Entry(self._loginFrame)
+        _senhaEntry = tk.Entry(self._frameLogin)
         _senhaEntry['show'] = '*'
         _senhaEntry.bind("<Return>", lambda _: _senhaEntry.tk_focusNext().focus())
         _senhaEntry['textvariable'] = self._senhaVar
 
-        self._loginButton = tk.Button(self._loginFrame)
+        self._loginButton = tk.Button(self._frameLogin)
         self._loginButton['text'] = "Iniciar Sessão"
-        self._loginButton['command'] = lambda u=_usuarioEntry: self.efetuarLogin(
+        self._loginButton['command'] = lambda u=_usuarioEntry: self._efetuarLogin(
             widgets=[_usuarioEntry, _senhaEntry])
         self._loginButton.bind("<Return>",
-                               lambda _, u=_usuarioEntry: self.efetuarLogin(widgets=[_usuarioEntry, _senhaEntry]))
+                               lambda _, u=_usuarioEntry: self._efetuarLogin(widgets=[_usuarioEntry, _senhaEntry]))
 
-        _sairButton = tk.Button(self._loginFrame)
+        _sairButton = tk.Button(self._frameLogin)
         _sairButton['text'] = "Ecerrar Aplicação"
         _sairButton['command'] = self.destroy
         _sairButton.bind("<Return>", lambda _: self.destroy())
@@ -112,11 +112,11 @@ class TelaInicial(tk.Tk):
         _senhaEntry.grid(row=3, column=0)
         self._loginButton.grid(row=4, column=0)
         _sairButton.grid(row=8, column=0)
-        self._loginFrame.grid(row=0, column=0, sticky='ns')
+        self._frameLogin.grid(row=0, column=0, sticky='ns')
         tk.Grid.rowconfigure(self, 0, weight=1)
         # TODO: criar metodo de saida e definir como usuario logado sera guardado e usado!
 
-    def efetuarLogin(self, widgets):
+    def _efetuarLogin(self, widgets):
         try:
             self.focus()
             self._loginButton['state'] = 'disabled'
@@ -165,18 +165,30 @@ class TelaInicial(tk.Tk):
         if self._janelaTopo is None:
             self._janelaTopo = janela
 
+        index = self._topJanelaMenu.index('end')
+        if index is None:
+            index = 0
+        else:
+            index += 1
+
         if janela in self._openWindows:
             self._mudarJanela(janela, **kwargs)
+            self._flagJanela.set(index)
             return False
 
         else:
             self._openWindows.append(janela)
-            self._topJanelaMenu.add_command(label=nome, command=lambda: self._mudarJanela(janela))
+
+            self._topJanelaMenu.add_radiobutton(label=nome,
+                                                value=index,
+                                                variable=self._flagJanela,
+                                                command=lambda: self._mudarJanela(janela))
             self._mudarJanela(janela, **kwargs)
             return True
 
     def fecharJanela(self):
         print("FECHAR JANELA")
+
         if self._janelaTopo is None:
             return
         else:
@@ -186,20 +198,23 @@ class TelaInicial(tk.Tk):
             else:
                 self._openWindows.clear()
                 self._janelaTopo.grid_remove()
+            self._topJanelaMenu.delete(self._flagJanela.get())
+            self._topJanelaMenu.focus()
 
     def _mudarJanela(self, janela, **kwargs):
         print(kwargs)
         self._janelaTopo.grid_remove()
         self._janelaTopo = janela
         self._janelaTopo.grid(kwargs)
-
+# verificar com professor: alunoLogado é publico ou privad no diagrama de classes?
     @property
     def alunoLogado(self):
         return self._alunoLogado
 
     @alunoLogado.setter
-    def alunoLogado(self, aluno):
-        self._alunoLogado = aluno
+    def alunoLogado(self, login):
+        self._alunoLogado = login
+
 
 
 class Disciplina:

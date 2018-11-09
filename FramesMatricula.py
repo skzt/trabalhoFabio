@@ -41,6 +41,8 @@ class FramesMatricula(tk.LabelFrame):
         :param widgets: Widgets que iram receber a tag
         :return: VOID
         """
+
+        print(type(widgets))
         for widget in widgets:
             widget.bindtags((tag,) + widget.bindtags())
 

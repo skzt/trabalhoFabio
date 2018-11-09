@@ -26,7 +26,7 @@ class Matricula:
         if self._frameSolicitacao is None:
             self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
         self._frameSolicitacao.frameSolicitar()
-        #self._frameSolicitacao.grid(row=0, column=1, sticky='n')
+
 
     def cancelarMatricula(self):
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
