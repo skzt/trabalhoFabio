@@ -165,47 +165,57 @@ class TelaInicial(tk.Tk):
         if self._janelaTopo is None:
             self._janelaTopo = janela
 
-        index = self._topJanelaMenu.index('end')
-        if index is None:
-            index = 0
-        else:
-            index += 1
-
         if janela in self._openWindows:
             self._mudarJanela(janela, **kwargs)
-            self._flagJanela.set(index)
+
             return False
 
         else:
             self._openWindows.append(janela)
+
+            index = self._openWindows.index(janela)
 
             self._topJanelaMenu.add_radiobutton(label=nome,
                                                 value=index,
                                                 variable=self._flagJanela,
                                                 command=lambda: self._mudarJanela(janela))
             self._mudarJanela(janela, **kwargs)
+
             return True
 
-    def fecharJanela(self):
+    def fecharJanela(self, evt = None):
         print("FECHAR JANELA")
-
+        #print(evt.widget['text'])
         if self._janelaTopo is None:
             return
         else:
+            print("flagJanela: ", self._flagJanela.get())
+            print("topJanela Index: ", self._topJanelaMenu.index('end'))
+            print("openWindows Index", self._openWindows.index(self._janelaTopo))
+
+            self._topJanelaMenu.delete(self._flagJanela.get())
+
             if len(self._openWindows) > 1:
                 self._openWindows.remove(self._janelaTopo)
                 self._mudarJanela(self._openWindows[0])
+
+                for index in range(self._topJanelaMenu.index('end') + 1):
+                    self._topJanelaMenu.entryconfigure(index, value=index)
             else:
                 self._openWindows.clear()
                 self._janelaTopo.grid_remove()
-            self._topJanelaMenu.delete(self._flagJanela.get())
-            self._topJanelaMenu.focus()
+
+            #self._topJanelaMenu.focus()
+
+
 
     def _mudarJanela(self, janela, **kwargs):
-        print(kwargs)
+        index = self._openWindows.index(janela)
+        self._flagJanela.set(index)
         self._janelaTopo.grid_remove()
         self._janelaTopo = janela
         self._janelaTopo.grid(kwargs)
+
 # verificar com professor: alunoLogado é publico ou privad no diagrama de classes?
     @property
     def alunoLogado(self):

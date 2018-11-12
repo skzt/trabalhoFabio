@@ -15,15 +15,15 @@ class FramesMatricula(tk.LabelFrame):
     """
 
     # TODO: Criar menu para alternar entre janelas na GRID
-    def __init__(self, master, metodos, *arg, **kwarg):
+    def __init__(self, master, metodos = None, *arg, **kwarg):
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
         # TODO: Fazer bind para fechar frames com o ESC, mas não destruir a classe.
 
         self.focus()
         self._janelaPrincipal = master
         self._metodos = metodos
-        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self._janelaPrincipal.fecharJanela())
-
+        # self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self._janelaPrincipal.fecharJanela())
+        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", self._janelaPrincipal.fecharJanela)
         self._boxDisciplinas = None
         self._boxSelecionados = None
         self._boxSemestre = None
@@ -212,82 +212,81 @@ class FramesMatricula(tk.LabelFrame):
                     self._boxDisciplinas)
 
     def frameHistorico(self):
+        self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='n')
+        # cursor = self.DB.cursor()
+        # situacao = {1: "PROCESSANDO",
+        #             2: "CURSANDO",
+        #             3: "RECUSADO",
+        #             4: "APROVEITAMENTO DE CREDITO",
+        #             5: "APROVADO",
+        #             6: "REPROVADO",
+        #             7: "REPROVADO POR FALTA"}
+        #
+        # mapaSemestre = {1: "Primeiro Semestre",
+        #                 2: "Segundo Semestre",
+        #                 3: "Terceiro Semestre",
+        #                 4: "Quarto Semestre",
+        #                 5: "Quinto Semestre",
+        #                 6: "Sexto Semestre",
+        #                 7: "Setimo Semestre",
+        #                 8: "Oitavo Semestre",
+        #                 9: "Nono Semestre",
+        #                 10: "Decimo Semestre"}
+        #
+        # semestres = {}
 
-        cursor = self.DB.cursor()
-        situacao = {1: "PROCESSANDO",
-                    2: "CURSANDO",
-                    3: "RECUSADO",
-                    4: "APROVEITAMENTO DE CREDITO",
-                    5: "APROVADO",
-                    6: "REPROVADO",
-                    7: "REPROVADO POR FALTA"}
-
-        mapaSemestre = {1: "Primeiro Semestre",
-                        2: "Segundo Semestre",
-                        3: "Terceiro Semestre",
-                        4: "Quarto Semestre",
-                        5: "Quinto Semestre",
-                        6: "Sexto Semestre",
-                        7: "Setimo Semestre",
-                        8: "Oitavo Semestre",
-                        9: "Nono Semestre",
-                        10: "Decimo Semestre"}
-
-        semestres = {}
-
-        historico = ttk.Treeview(self.__janelaSolicitar,
+        historico = ttk.Treeview(self,
                                  columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
-        historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
-
-        historico.column('#0', width=140)
-
-        historico.heading('Codigo', text="Codigo")
-        historico.column('Codigo', width=100, anchor='center')
-
-        historico.heading('Disciplina', text='Disciplina')
-        historico.column('Disciplina', width=250, anchor='center')
-
-        historico.heading('Periodo', text='Periodo')
-        historico.column('Periodo', width=100, anchor='center')
-
-        historico.heading('Nota', text='Nota')
-        historico.column('Nota', width=70, anchor='center')
-
-        historico.heading('Créditos', text='Créditos')
-        historico.column('Créditos', width=70, anchor='center')
-
-        historico.heading('Situação', text='Situação')
-        historico.column('Situação', width=100, anchor='center')
-
-        select = '''select DISCIPLINA.semestreGrade,
-               DISCIPLINA.codigo,
-               DISCIPLINA.nome,
-               SEMESTRE_DISCIPLINA.semestre,
-               DISCIPLINA_ALUNO.nota,
-               DISCIPLINA.numCredito,
-               DISCIPLINA_ALUNO.situacao
-        from DISCIPLINA_ALUNO
-               JOIN DISCIPLINA
-                 ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
-               JOIN SEMESTRE_DISCIPLINA
-                 ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-        WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
-
-        cursor.execute(select)
-
-        for disciplina in cursor.fetchall():
-            disciplina = list(disciplina)
-
-            if disciplina[0] not in semestres:
-                semestres[disciplina[0]] = historico.insert('', 'end', text=mapaSemestre[disciplina[0]])
-
-            disciplina[6] = situacao[disciplina[6]]
-
-            historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
-
-        cursor.close()
+        # historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
+        #
+        # historico.column('#0', width=140)
+        #
+        # historico.heading('Codigo', text="Codigo")
+        # historico.column('Codigo', width=100, anchor='center')
+        #
+        # historico.heading('Disciplina', text='Disciplina')
+        # historico.column('Disciplina', width=250, anchor='center')
+        #
+        # historico.heading('Periodo', text='Periodo')
+        # historico.column('Periodo', width=100, anchor='center')
+        #
+        # historico.heading('Nota', text='Nota')
+        # historico.column('Nota', width=70, anchor='center')
+        #
+        # historico.heading('Créditos', text='Créditos')
+        # historico.column('Créditos', width=70, anchor='center')
+        #
+        # historico.heading('Situação', text='Situação')
+        # historico.column('Situação', width=100, anchor='center')
+        #
+        # select = '''select DISCIPLINA.semestreGrade,
+        #        DISCIPLINA.codigo,
+        #        DISCIPLINA.nome,
+        #        SEMESTRE_DISCIPLINA.semestre,
+        #        DISCIPLINA_ALUNO.nota,
+        #        DISCIPLINA.numCredito,
+        #        DISCIPLINA_ALUNO.situacao
+        # from DISCIPLINA_ALUNO
+        #        JOIN DISCIPLINA
+        #          ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
+        #        JOIN SEMESTRE_DISCIPLINA
+        #          ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
+        # WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+        #
+        # cursor.execute(select)
+        #
+        # for disciplina in cursor.fetchall():
+        #     disciplina = list(disciplina)
+        #
+        #     if disciplina[0] not in semestres:
+        #         semestres[disciplina[0]] = historico.insert('', 'end', text=mapaSemestre[disciplina[0]])
+        #
+        #     disciplina[6] = situacao[disciplina[6]]
+        #
+        #     historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
+        #
+        # cursor.close()
         historico.pack()
-
     def __del__(self):
         print("oiiiiiiiiiiiiii frame")
 

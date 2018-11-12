@@ -27,7 +27,6 @@ class Matricula:
             self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
         self._frameSolicitacao.frameSolicitar()
 
-
     def cancelarMatricula(self):
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
 
@@ -169,6 +168,8 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
 
 
     def verHistorico(self):
-        pass
+        if self._frameHistorico is None:
+            self._frameHistorico = FramesMatricula(self.janelaPrincipal)
+        self._frameHistorico.frameHistorico()
 
 
