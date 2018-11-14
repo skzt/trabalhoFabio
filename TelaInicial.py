@@ -120,6 +120,8 @@ class TelaInicial(tk.Tk):
         try:
             self.focus()
             self._loginButton['state'] = 'disabled'
+            widgets[0]['state'] = 'disabled'
+            widgets[1]['state'] = 'disabled'
             self.alunoLogado = Login(janelaPrincipal=self,
                                      usuario=self._usuarioVar,
                                      widgets=widgets)
@@ -128,6 +130,8 @@ class TelaInicial(tk.Tk):
                                  parent=self)
 
             self._loginButton['state'] = 'normal'
+            widgets[0]['state'] = 'normal'
+            widgets[1]['state'] = 'normal'
             return
 
         if self.alunoLogado.logar(self._senhaVar):
@@ -224,17 +228,6 @@ class TelaInicial(tk.Tk):
     @alunoLogado.setter
     def alunoLogado(self, login):
         self._alunoLogado = login
-
-
-
-class Disciplina:
-    def __init__(self, numCreditos, codigo, nome, horario):
-        self._alunosMatriculados = []
-        self._numCreditos = numCreditos
-        self._codigo = codigo
-        self._nome = nome
-        self._horario = horario
-        pass
 
 
 if __name__ == '__main__':

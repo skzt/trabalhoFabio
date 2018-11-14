@@ -34,7 +34,6 @@ class Matricula:
             self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
             self._carregarProcessando()
         self._frameCancelamento.frameCancelar()
-        #self._frameCancelamento.grid(row=0, column=1, sticky='n')
 
     def _carregarProcessando(self):
         """
@@ -135,7 +134,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
             self.DB.commit()
         cursor.close()
 
-        del self._frameSolicitacao
+        self._frameSolicitacao = None
 
     def _confirmarCancelamento(self):
         self._frameCancelamento.focus()
@@ -163,8 +162,8 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
 
         self.DB.commit()
         cursor.close()
-
-        del self._frameCancelamento
+        self._mudarSemestre()
+        self._frameCancelamento = None
 
 
     def verHistorico(self):

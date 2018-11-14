@@ -11,20 +11,17 @@ class Login:
         senha -> Variavel que observa o widget senhaEntry
         widgets -> os widgets de usuario e senha, respectivamente. Utilizados para alteração de estado do widget."""
 
-        self.janelaPrincipal = janelaPrincipal
-        self.__widgets = widgets
-        self.__usuario = usuario
-        self.__aluno = None
-
-        self.deslogarButton = None
-        self.alterarSenha = None
+        self._janelaPrincipal = janelaPrincipal
+        self._widgets = widgets
+        self._usuario = usuario
+        self._aluno = None
 
         # Acesso ao banco
         self.DB = ConexaoBanco()
 
     def logar(self, senha):
         select = '''SELECT idAluno FROM LOGIN WHERE usuario = '%s' AND senha = MD5('%s');''' \
-                 % (self.__usuario.get(), senha.get())
+                 % (self._usuario.get(), senha.get())
 
         cursor = self.DB.cursor()
 
@@ -42,8 +39,7 @@ class Login:
             -Alterar senha
             """
 
-            self.__widgets[0]['state'] = 'disabled'
-            self.__widgets[1]['state'] = 'disabled'
+
 
             select = "SELECT * FROM ALUNO WHERE idAluno = %d;" % idAluno
 
@@ -51,19 +47,19 @@ class Login:
 
             tmp = cursor.fetchone()
             cursor.close()
-            self.__aluno = Aluno(self.janelaPrincipal, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4])
-            self.__aluno.logado = True
+            self._aluno = Aluno(self._janelaPrincipal, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4])
+            self._aluno.logado = True
             return True
 
         else:
             messagebox.showerror(title='Login Incorreto!', message='Usuário ou senha incorreta.',
-                                 parent=self.janelaPrincipal)
+                                 parent=self._janelaPrincipal)
             cursor.close()
             return False
 
     def alterarSenhaWindow(self):
-        __frameMudaSenha = tk.Toplevel(self.janelaPrincipal)
-        self.janelaPrincipal.openWindows = ("Alterar Senha", __frameMudaSenha)
+        __frameMudaSenha = tk.Toplevel(self._janelaPrincipal)
+        self._janelaPrincipal.openWindows = ("Alterar Senha", __frameMudaSenha)
         __senhaAtualVar = tk.StringVar()
         __novaSenhaVar = tk.StringVar()
         __confNovaSenhaVar = tk.StringVar()
@@ -135,7 +131,7 @@ class Login:
             select = '''SELECT idAluno\
                           FROM LOGIN\
                           WHERE usuario = '%s' AND senha = MD5('%s');''' \
-                     % (self.__usuario.get(), senhaAtualVar.get())
+                     % (self._usuario.get(), senhaAtualVar.get())
 
             cursor.execute(select)
 
@@ -144,7 +140,7 @@ class Login:
                 Então é liberado para fazer a atualização de senha.
                 '''
                 update = ('''UPDATE `LOGIN` SET `senha`= MD5('%s') WHERE `usuario` = '%s';'''
-                          % (novaSenhaVar.get(), self.__usuario.get())
+                          % (novaSenhaVar.get(), self._usuario.get())
                           )
                 cursor.execute(update)
                 self.DB.commit()
@@ -160,24 +156,24 @@ class Login:
                 confNovaSenhaVar.set("")
 
     def encerrarsessao(self):
-        self.__aluno.deslogar()
-        del self.__aluno
+        self._aluno.deslogar()
+        del self._aluno
 
-        self.__widgets[0]['state'] = 'normal'
-        self.__widgets[0].delete(0, 'end')
-        self.__widgets[1]['state'] = 'normal'
-        self.__widgets[1].delete(0, 'end')
+        self._widgets[0]['state'] = 'normal'
+        self._widgets[0].delete(0, 'end')
+        self._widgets[1]['state'] = 'normal'
+        self._widgets[1].delete(0, 'end')
 
-        for window in self.janelaPrincipal.openWindows:
+        for window in self._janelaPrincipal.openWindows:
             window[1].destroy()
 
         self.DB.close()
-        self.__widgets[0].focus()
-        self.janelaPrincipal.deslogar()
+        self._widgets[0].focus()
+        self._janelaPrincipal.deslogar()
 
     def __del__(self):
         print("OIIII LOGIN")
 
     @property
     def aluno(self):
-        return self.__aluno
+        return self._aluno
