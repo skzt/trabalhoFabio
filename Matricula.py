@@ -162,13 +162,65 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
 
         self.DB.commit()
         cursor.close()
-        self._mudarSemestre()
         self._frameCancelamento = None
-
 
     def verHistorico(self):
         if self._frameHistorico is None:
             self._frameHistorico = FramesMatricula(self.janelaPrincipal)
         self._frameHistorico.frameHistorico()
+        self._popularHistorico()
+
+    def _popularHistorico(self):
+        cursor = self.DB.cursor()
+        situacao = {1: "PROCESSANDO",
+                    2: "CURSANDO",
+                    3: "RECUSADO",
+                    4: "APROVEITAMENTO DE CREDITO",
+                    5: "APROVADO",
+                    6: "REPROVADO",
+                    7: "REPROVADO POR FALTA"}
+
+        mapaSemestre = {1: "Primeiro Semestre",
+                        2: "Segundo Semestre",
+                        3: "Terceiro Semestre",
+                        4: "Quarto Semestre",
+                        5: "Quinto Semestre",
+                        6: "Sexto Semestre",
+                        7: "Setimo Semestre",
+                        8: "Oitavo Semestre",
+                        9: "Nono Semestre",
+                        10: "Decimo Semestre"}
+
+        semestres = {}
+
+        select = '''select DISCIPLINA.semestreGrade,
+                       DISCIPLINA.codigo,
+                       DISCIPLINA.nome,
+                       SEMESTRE_DISCIPLINA.semestre,
+                       DISCIPLINA_ALUNO.nota,
+                       DISCIPLINA.numCredito,
+                       DISCIPLINA_ALUNO.situacao
+                from DISCIPLINA_ALUNO
+                       JOIN DISCIPLINA
+                         ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
+                       JOIN SEMESTRE_DISCIPLINA
+                         ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
+                WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+
+        cursor.execute(select)
+
+        for disciplina in cursor.fetchall():
+            disciplina = list(disciplina)
+
+            if disciplina[0] not in semestres:
+                semestres[disciplina[0]] = self._frameHistorico.treeHistorico.insert('',
+                                                                                     'end',
+                                                                                     text=mapaSemestre[disciplina[0]])
+
+            disciplina[6] = situacao[disciplina[6]]
+
+            self._frameHistorico.treeHistorico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
+
+        cursor.close()
 
 

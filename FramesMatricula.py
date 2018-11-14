@@ -27,6 +27,7 @@ class FramesMatricula(tk.LabelFrame):
         self._boxDisciplinas = None
         self._boxSelecionados = None
         self._boxSemestre = None
+        self._treeHistorico = None
 
         self._listaDisciplinas = tk.Variable()
         self._listaSelecionados = tk.Variable()
@@ -213,80 +214,34 @@ class FramesMatricula(tk.LabelFrame):
 
     def frameHistorico(self):
         self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='n')
-        # cursor = self.DB.cursor()
-        # situacao = {1: "PROCESSANDO",
-        #             2: "CURSANDO",
-        #             3: "RECUSADO",
-        #             4: "APROVEITAMENTO DE CREDITO",
-        #             5: "APROVADO",
-        #             6: "REPROVADO",
-        #             7: "REPROVADO POR FALTA"}
-        #
-        # mapaSemestre = {1: "Primeiro Semestre",
-        #                 2: "Segundo Semestre",
-        #                 3: "Terceiro Semestre",
-        #                 4: "Quarto Semestre",
-        #                 5: "Quinto Semestre",
-        #                 6: "Sexto Semestre",
-        #                 7: "Setimo Semestre",
-        #                 8: "Oitavo Semestre",
-        #                 9: "Nono Semestre",
-        #                 10: "Decimo Semestre"}
-        #
-        # semestres = {}
 
-        historico = ttk.Treeview(self,
+        self._treeHistorico = ttk.Treeview(self,
                                  columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
-        # historico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
+        self._treeHistorico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
+
+        self._treeHistorico.column('#0', width=140)
+
+        self._treeHistorico.heading('Codigo', text="Codigo")
+        self._treeHistorico.column('Codigo', width=100, anchor='center')
+
+        self._treeHistorico.heading('Disciplina', text='Disciplina')
+        self._treeHistorico.column('Disciplina', width=250, anchor='center')
+
+        self._treeHistorico.heading('Periodo', text='Periodo')
+        self._treeHistorico.column('Periodo', width=100, anchor='center')
+
+        self._treeHistorico.heading('Nota', text='Nota')
+        self._treeHistorico.column('Nota', width=70, anchor='center')
+
+        self._treeHistorico.heading('Créditos', text='Créditos')
+        self._treeHistorico.column('Créditos', width=70, anchor='center')
+
+        self._treeHistorico.heading('Situação', text='Situação')
+        self._treeHistorico.column('Situação', width=100, anchor='center')
         #
-        # historico.column('#0', width=140)
-        #
-        # historico.heading('Codigo', text="Codigo")
-        # historico.column('Codigo', width=100, anchor='center')
-        #
-        # historico.heading('Disciplina', text='Disciplina')
-        # historico.column('Disciplina', width=250, anchor='center')
-        #
-        # historico.heading('Periodo', text='Periodo')
-        # historico.column('Periodo', width=100, anchor='center')
-        #
-        # historico.heading('Nota', text='Nota')
-        # historico.column('Nota', width=70, anchor='center')
-        #
-        # historico.heading('Créditos', text='Créditos')
-        # historico.column('Créditos', width=70, anchor='center')
-        #
-        # historico.heading('Situação', text='Situação')
-        # historico.column('Situação', width=100, anchor='center')
-        #
-        # select = '''select DISCIPLINA.semestreGrade,
-        #        DISCIPLINA.codigo,
-        #        DISCIPLINA.nome,
-        #        SEMESTRE_DISCIPLINA.semestre,
-        #        DISCIPLINA_ALUNO.nota,
-        #        DISCIPLINA.numCredito,
-        #        DISCIPLINA_ALUNO.situacao
-        # from DISCIPLINA_ALUNO
-        #        JOIN DISCIPLINA
-        #          ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
-        #        JOIN SEMESTRE_DISCIPLINA
-        #          ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-        # WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
-        #
-        # cursor.execute(select)
-        #
-        # for disciplina in cursor.fetchall():
-        #     disciplina = list(disciplina)
-        #
-        #     if disciplina[0] not in semestres:
-        #         semestres[disciplina[0]] = historico.insert('', 'end', text=mapaSemestre[disciplina[0]])
-        #
-        #     disciplina[6] = situacao[disciplina[6]]
-        #
-        #     historico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
-        #
-        # cursor.close()
-        historico.pack()
+
+        self._treeHistorico.pack()
+
     def __del__(self):
         print("oiiiiiiiiiiiiii frame")
 
@@ -302,6 +257,10 @@ class FramesMatricula(tk.LabelFrame):
     @property
     def boxSelecionados(self):
         return self._boxSelecionados
+
+    @property
+    def treeHistorico(self):
+        return self._treeHistorico
 
     @property
     def listaDisciplinas(self):
