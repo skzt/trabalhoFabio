@@ -15,15 +15,16 @@ class FramesMatricula(tk.LabelFrame):
     """
 
     # TODO: Criar menu para alternar entre janelas na GRID
-    def __init__(self, master, metodos = None, *arg, **kwarg):
+    def __init__(self, master, metodos=None, *arg, **kwarg):
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
         # TODO: Fazer bind para fechar frames com o ESC, mas não destruir a classe.
 
         self.focus()
         self._janelaPrincipal = master
         self._metodos = metodos
-        # self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self._janelaPrincipal.fecharJanela())
+
         self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", self._janelaPrincipal.fecharJanela)
+
         self._boxDisciplinas = None
         self._boxSelecionados = None
         self._boxSemestre = None
@@ -216,7 +217,7 @@ class FramesMatricula(tk.LabelFrame):
         self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='n')
 
         self._treeHistorico = ttk.Treeview(self,
-                                 columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
+                                           columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
         self._treeHistorico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
 
         self._treeHistorico.column('#0', width=140)
@@ -238,13 +239,13 @@ class FramesMatricula(tk.LabelFrame):
 
         self._treeHistorico.heading('Situação', text='Situação')
         self._treeHistorico.column('Situação', width=100, anchor='center')
-        #
 
         self._treeHistorico.pack()
 
+        self._retag('frameMatricula', self, self._treeHistorico)
+
     def __del__(self):
         print("oiiiiiiiiiiiiii frame")
-
 
     @property
     def boxSemestre(self):

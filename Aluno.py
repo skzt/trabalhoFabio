@@ -4,31 +4,31 @@ from Matricula import Matricula
 class Aluno:
     def __init__(self, janelaPrincipal, idAluno, nome, cpf, dataNasc, curso):
         self._janelaPrincipal = janelaPrincipal
-        self.__idAluno = idAluno
-        self.__nome = nome
-        self.__cpf = cpf
-        self.__dataNasc = dataNasc
-        self.__curso = curso
-        self.__matriculado = Matricula(self._janelaPrincipal, self.__idAluno, self.curso)
-        self.__logado = False
+        self._idAluno = idAluno
+        self._nome = nome
+        self._cpf = cpf
+        self._dataNasc = dataNasc
+        self._curso = curso
+        self._matriculado = Matricula(self._janelaPrincipal, self._idAluno, self.curso)
+        self._logado = False
 
     def solicitarMatricula(self):
-        self.__matriculado.solicitarMatricula()
+        self._matriculado.solicitarMatricula()
 
     def cancelarMatricula(self):
-        self.__matriculado.cancelarMatricula()
+        self._matriculado.cancelarMatricula()
 
     def verHistorico(self):
-        self.__matriculado.verHistorico()
+        self._matriculado.verHistorico()
 
     def deslogar(self):
         self._janelaPrincipal = None
-        self.__idAluno = None
+        self._idAluno = None
         self.nome = None
         self.cpf = None
         self.dataNasc = None
         self.curso = None
-        self.__matriculado = None
+        self._matriculado = None
         self.logado = False
 
     def __del__(self):
@@ -37,41 +37,41 @@ class Aluno:
     # <editor-fold desc="Property Aluno">
     @property
     def nome(self):
-        return self.__nome
+        return self._nome
 
     @nome.setter
     def nome(self, nome):
-        self.__nome = nome
+        self._nome = nome
 
     @property
     def cpf(self):
-        return self.__cpf
+        return self._cpf
 
     @cpf.setter
     def cpf(self, cpf):
-        self.__cpf = cpf
+        self._cpf = cpf
 
     @property
     def dataNasc(self):
-        return self.__dataNasc
+        return self._dataNasc
 
     @dataNasc.setter
     def dataNasc(self, dataNasc):
-        self.__dataNasc = dataNasc
+        self._dataNasc = dataNasc
 
     @property
     def curso(self):
-        return self.__curso
+        return self._curso
 
     @curso.setter
     def curso(self, curso):
-        self.__curso = curso
+        self._curso = curso
 
     @property
     def logado(self):
-        return self.__logado
+        return self._logado
 
     @logado.setter
     def logado(self, logado):
-        self.__logado = logado
+        self._logado = logado
     # </editor-fold>

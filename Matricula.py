@@ -8,8 +8,8 @@ from FramesMatricula import FramesMatricula
 class Matricula:
     def __init__(self, janelaPrincipal, idAluno, curso):
         self.janelaPrincipal = janelaPrincipal
-        self.__curso = curso
-        self.__idAluno = idAluno
+        self._curso = curso
+        self._idAluno = idAluno
 
         self.DB = ConexaoBanco()
         self._frameSolicitacao = None
@@ -49,7 +49,7 @@ class Matricula:
                JOIN DISCIPLINA_ALUNO
                  ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
         WHERE DISCIPLINA_ALUNO.idAluno = %d
-          AND DISCIPLINA_ALUNO.situacao = 1;''' % self.__idAluno
+          AND DISCIPLINA_ALUNO.situacao = 1;''' % self._idAluno
 
         cursor.execute(select)
         disciplinasProcessadas = cursor.fetchall()
@@ -87,7 +87,7 @@ WHERE idDisciplina != ALL(SELECT idDisciplina
                             AND DISCIPLINA_ALUNO.situacao != 6
                             AND DISCIPLINA_ALUNO.situacao != 7)
 AND semestreGrade = %d;''' \
-                 % (self.__idAluno, mapaSemestre[widget.get()])
+                 % (self._idAluno, mapaSemestre[widget.get()])
 
         cursor = self.DB.cursor()
         cursor.execute(select)
@@ -128,7 +128,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
             idSemestreDisciplina = cursor.fetchone()[0]
 
             insert = ''' INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`)
-            values (%d, %d, %d); ''' % (idDisciplina, idSemestreDisciplina, self.__idAluno)
+            values (%d, %d, %d); ''' % (idDisciplina, idSemestreDisciplina, self._idAluno)
 
             cursor.execute(insert)
             self.DB.commit()
@@ -145,7 +145,7 @@ from DISCIPLINA
        JOIN DISCIPLINA_ALUNO
          ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
 WHERE DISCIPLINA_ALUNO.situacao = 1
-  AND DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+  AND DISCIPLINA_ALUNO.idAluno = %d;''' % self._idAluno
 
         cursor = self.DB.cursor()
         cursor.execute(select)
@@ -205,21 +205,29 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
                          ON DISCIPLINA_ALUNO.idDisciplina = DISCIPLINA.idDisciplina
                        JOIN SEMESTRE_DISCIPLINA
                          ON SEMESTRE_DISCIPLINA.idDisciplina = DISCIPLINA.idDisciplina
-                WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self.__idAluno
+                WHERE DISCIPLINA_ALUNO.idAluno = %d;''' % self._idAluno
 
         cursor.execute(select)
-
-        for disciplina in cursor.fetchall():
+        historico = cursor.fetchall()
+        for disciplina in historico:
             disciplina = list(disciplina)
-
-            if disciplina[0] not in semestres:
-                semestres[disciplina[0]] = self._frameHistorico.treeHistorico.insert('',
-                                                                                     'end',
-                                                                                     text=mapaSemestre[disciplina[0]])
-
             disciplina[6] = situacao[disciplina[6]]
 
-            self._frameHistorico.treeHistorico.insert(semestres[disciplina[0]], 'end', values=disciplina[1:])
+            if disciplina[0] not in semestres:
+                semestres[disciplina[0]] = []
+
+            semestres[disciplina[0]].append(disciplina[1:])
+            semestres[disciplina[0]].sort()
+
+        for semestre in range(1, 11):
+
+            if semestre in semestres:
+                treeItem = self._frameHistorico.treeHistorico.insert('',
+                                                                     'end',
+                                                                     text=mapaSemestre[semestre])
+
+                for disciplina in semestres[semestre]:
+                    self._frameHistorico.treeHistorico.insert(treeItem, 'end', values=disciplina)
 
         cursor.close()
 

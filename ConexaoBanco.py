@@ -14,13 +14,13 @@ class ConexaoBanco:
 
     def __init__(self):
         dbinfo = getDBinfo()
-        self.__DB = sql.connect(dbinfo[0], dbinfo[1], dbinfo[2], dbinfo[3])
+        self._DB = sql.connect(dbinfo[0], dbinfo[1], dbinfo[2], dbinfo[3])
 
     def cursor(self):
-        return self.__DB.cursor()
+        return self._DB.cursor()
 
     def close(self):
-        self.__DB.close()
+        self._DB.close()
 
     def commit(self):
-        self.__DB.commit()
+        self._DB.commit()

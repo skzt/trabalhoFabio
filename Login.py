@@ -58,62 +58,62 @@ class Login:
             return False
 
     def alterarSenhaWindow(self):
-        __frameMudaSenha = tk.Toplevel(self._janelaPrincipal)
-        self._janelaPrincipal.openWindows = ("Alterar Senha", __frameMudaSenha)
-        __senhaAtualVar = tk.StringVar()
-        __novaSenhaVar = tk.StringVar()
-        __confNovaSenhaVar = tk.StringVar()
+        _frameMudaSenha = tk.Toplevel(self._janelaPrincipal)
+        self._janelaPrincipal.openWindows = ("Alterar Senha", _frameMudaSenha)
+        _senhaAtualVar = tk.StringVar()
+        _novaSenhaVar = tk.StringVar()
+        _confNovaSenhaVar = tk.StringVar()
         # =======================================================================
         # Labels
         # =======================================================================
-        __senhaAtualLabel = tk.Label(__frameMudaSenha)
-        __senhaAtualLabel['text'] = "Senha Atual"
-        __novaSenhaLabel = tk.Label(__frameMudaSenha)
-        __novaSenhaLabel['text'] = "Nova Senha"
-        __confNovaSenhaLabel = tk.Label(__frameMudaSenha)
-        __confNovaSenhaLabel['text'] = "Confirmar Senha"
+        _senhaAtualLabel = tk.Label(_frameMudaSenha)
+        _senhaAtualLabel['text'] = "Senha Atual"
+        _novaSenhaLabel = tk.Label(_frameMudaSenha)
+        _novaSenhaLabel['text'] = "Nova Senha"
+        _confNovaSenhaLabel = tk.Label(_frameMudaSenha)
+        _confNovaSenhaLabel['text'] = "Confirmar Senha"
 
         # =======================================================================
         # Entrys
         # =======================================================================
-        __senhaAtualEntry = tk.Entry(__frameMudaSenha)
-        __senhaAtualEntry['textvariable'] = __senhaAtualVar
-        __senhaAtualEntry['show'] = '*'
-        __senhaAtualEntry.focus()
+        _senhaAtualEntry = tk.Entry(_frameMudaSenha)
+        _senhaAtualEntry['textvariable'] = _senhaAtualVar
+        _senhaAtualEntry['show'] = '*'
+        _senhaAtualEntry.focus()
 
-        __novaSenhaEntry = tk.Entry(__frameMudaSenha)
-        __novaSenhaEntry['textvariable'] = __novaSenhaVar
-        __novaSenhaEntry['show'] = '*'
+        _novaSenhaEntry = tk.Entry(_frameMudaSenha)
+        _novaSenhaEntry['textvariable'] = _novaSenhaVar
+        _novaSenhaEntry['show'] = '*'
 
-        __confNovaSenhaEntry = tk.Entry(__frameMudaSenha)
-        __confNovaSenhaEntry['textvariable'] = __confNovaSenhaVar
-        __confNovaSenhaEntry['show'] = '*'
+        _confNovaSenhaEntry = tk.Entry(_frameMudaSenha)
+        _confNovaSenhaEntry['textvariable'] = _confNovaSenhaVar
+        _confNovaSenhaEntry['show'] = '*'
 
         # =======================================================================
         # Buttons
         # =======================================================================
 
-        __confirmar = tk.Button(__frameMudaSenha)
-        __confirmar['text'] = "Confirmar"
-        __confirmar['command'] = lambda sav=__senhaAtualVar, nsv=__novaSenhaVar, cnsv=__confNovaSenhaVar, frame=\
-            __frameMudaSenha: self.alterarsenhacommit(sav, nsv, cnsv, frame)
-        __cancelar = tk.Button(__frameMudaSenha)
-        __cancelar['text'] = "Cancelar"
-        __cancelar['command'] = __frameMudaSenha.destroy
+        _confirmar = tk.Button(_frameMudaSenha)
+        _confirmar['text'] = "Confirmar"
+        _confirmar['command'] = lambda sav=_senhaAtualVar, nsv=_novaSenhaVar, cnsv=_confNovaSenhaVar, frame=\
+            _frameMudaSenha: self.alterarsenhacommit(sav, nsv, cnsv, frame)
+        _cancelar = tk.Button(_frameMudaSenha)
+        _cancelar['text'] = "Cancelar"
+        _cancelar['command'] = _frameMudaSenha.destroy
 
         # =======================================================================
         # Grids
         # =======================================================================
-        __senhaAtualLabel.grid(row=0, column=0)
-        __novaSenhaLabel.grid(row=2, column=0)
-        __confNovaSenhaLabel.grid(row=4, column=0)
+        _senhaAtualLabel.grid(row=0, column=0)
+        _novaSenhaLabel.grid(row=2, column=0)
+        _confNovaSenhaLabel.grid(row=4, column=0)
 
-        __senhaAtualEntry.grid(row=1, column=0)
-        __novaSenhaEntry.grid(row=3, column=0)
-        __confNovaSenhaEntry.grid(row=5, column=0)
+        _senhaAtualEntry.grid(row=1, column=0)
+        _novaSenhaEntry.grid(row=3, column=0)
+        _confNovaSenhaEntry.grid(row=5, column=0)
 
-        __confirmar.grid(row=6, column=0, sticky='sw')
-        __cancelar.grid(row=6, column=0, sticky='se')
+        _confirmar.grid(row=6, column=0, sticky='sw')
+        _cancelar.grid(row=6, column=0, sticky='se')
         return
 
     def alterarsenhacommit(self, senhaAtualVar, novaSenhaVar, confNovaSenhaVar, frame):
@@ -159,11 +159,7 @@ class Login:
         self._aluno.deslogar()
         del self._aluno
 
-        self._widgets[0]['state'] = 'normal'
-        self._widgets[0].delete(0, 'end')
-        self._widgets[1]['state'] = 'normal'
-        self._widgets[1].delete(0, 'end')
-
+        # TODO: Passar o maximo possivel de encerrar sessão pra janela principal!
         for window in self._janelaPrincipal.openWindows:
             window[1].destroy()
 

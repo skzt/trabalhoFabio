@@ -81,22 +81,21 @@ class TelaInicial(tk.Tk):
         _senhaLabel = tk.Label(self._frameLogin)
         _senhaLabel['text'] = "Senha:"
 
-        _usuarioEntry = tk.Entry(self._frameLogin)
-        _usuarioEntry['textvariable'] = self._usuarioVar
-        _usuarioEntry.bind("<Return>", lambda _: _usuarioEntry.tk_focusNext().focus())
-        _usuarioEntry.focus()
+        self._usuarioEntry = tk.Entry(self._frameLogin)
+        self._usuarioEntry['textvariable'] = self._usuarioVar
+        self._usuarioEntry.bind("<Return>", lambda _: self._usuarioEntry.tk_focusNext().focus())
+        self._usuarioEntry.focus()
 
-        _senhaEntry = tk.Entry(self._frameLogin)
-        _senhaEntry['show'] = '*'
-        _senhaEntry.bind("<Return>", lambda _: _senhaEntry.tk_focusNext().focus())
-        _senhaEntry['textvariable'] = self._senhaVar
+        self._senhaEntry = tk.Entry(self._frameLogin)
+        self._senhaEntry['show'] = '*'
+        self._senhaEntry.bind("<Return>", lambda _: self._senhaEntry.tk_focusNext().focus())
+        self._senhaEntry['textvariable'] = self._senhaVar
 
         self._loginButton = tk.Button(self._frameLogin)
         self._loginButton['text'] = "Iniciar Sessão"
-        self._loginButton['command'] = lambda u=_usuarioEntry: self._efetuarLogin(
-            widgets=[_usuarioEntry, _senhaEntry])
+        self._loginButton['command'] = self._efetuarLogin
         self._loginButton.bind("<Return>",
-                               lambda _, u=_usuarioEntry: self._efetuarLogin(widgets=[_usuarioEntry, _senhaEntry]))
+                               lambda _: self._efetuarLogin())
 
         _sairButton = tk.Button(self._frameLogin)
         _sairButton['text'] = "Ecerrar Aplicação"
@@ -107,9 +106,9 @@ class TelaInicial(tk.Tk):
         # Plotando a Janela de Login na Grid
         # =======================================================================
         _userLabel.grid(row=0, column=0)
-        _usuarioEntry.grid(row=1, column=0)
+        self._usuarioEntry.grid(row=1, column=0)
         _senhaLabel.grid(row=2, column=0)
-        _senhaEntry.grid(row=3, column=0)
+        self._senhaEntry.grid(row=3, column=0)
         self._loginButton.grid(row=4, column=0)
         _sairButton.grid(row=8, column=0)
         self._frameLogin.grid(row=0, column=0, sticky='ns')
@@ -155,7 +154,15 @@ class TelaInicial(tk.Tk):
         # TODO: adicionar todos os top menus que forem adicionados após o login
         self._topLoginMenu.delete(0, 1)
         self._topMatriculaMenu.delete(0, 2)
+
         self._loginButton['state'] = 'normal'
+
+        self._usuarioEntry['state'] = 'normal'
+        self._usuarioEntry['state'].delete(0, 'end')
+
+        self._senhaEntry['state'] = 'normal'
+        self._senhaEntry['state'].delete(0, 'end')
+
 
     def novaJanela(self, nome, janela, **kwargs):
         """
@@ -210,8 +217,6 @@ class TelaInicial(tk.Tk):
                 self._janelaTopo.grid_remove()
 
             #self._topJanelaMenu.focus()
-
-
 
     def _mudarJanela(self, janela, **kwargs):
         index = self._openWindows.index(janela)

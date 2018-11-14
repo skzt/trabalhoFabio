@@ -49,6 +49,3 @@ def getDBinfo():
             return tuple(result)   
         else:
             raise IOError           
-                
-    
-    
