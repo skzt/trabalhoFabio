@@ -231,4 +231,22 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
 
         cursor.close()
 
+    def deslogar(self):
+        if self._frameSolicitacao is not None:
+            self._frameSolicitacao.destroy()
+            del self._frameSolicitacao
+
+        if self._frameCancelamento is not None:
+            self._frameCancelamento.destroy()
+
+        if self._frameHistorico is not None:
+            self._frameHistorico.destroy()
+
+        if self._frameHorario is not None:
+            self._frameHorario.destroy()
+
+    def __del__(self):
+        print("OIIIIIIIII MATRICULA")
+
+
 

@@ -115,28 +115,27 @@ class TelaInicial(tk.Tk):
         tk.Grid.rowconfigure(self, 0, weight=1)
         # TODO: criar metodo de saida e definir como usuario logado sera guardado e usado!
 
-    def _efetuarLogin(self, widgets):
+    def _efetuarLogin(self):
         try:
             self.focus()
             self._loginButton['state'] = 'disabled'
-            widgets[0]['state'] = 'disabled'
-            widgets[1]['state'] = 'disabled'
+            self._usuarioEntry['state'] = 'disabled'
+            self._senhaEntry['state'] = 'disabled'
             self.alunoLogado = Login(janelaPrincipal=self,
-                                     usuario=self._usuarioVar,
-                                     widgets=widgets)
+                                     usuario=self._usuarioVar)
         except err.OperationalError:
             messagebox.showerror(title="Conexão ao Banco", message="Falha ao se conectar ao Banco de Dados",
                                  parent=self)
 
             self._loginButton['state'] = 'normal'
-            widgets[0]['state'] = 'normal'
-            widgets[1]['state'] = 'normal'
+            self._usuarioEntry['state'] = 'normal'
+            self._senhaEntry['state'] = 'normal'
             return
 
         if self.alunoLogado.logar(self._senhaVar):
             # Top Menus de Login
             self._topLoginMenu.add_command(label="Alterar Senha", command=self.alunoLogado.alterarSenhaWindow)
-            self._topLoginMenu.add_command(label="Encerrar Sessão", command=self.alunoLogado.encerrarsessao)
+            self._topLoginMenu.add_command(label="Encerrar Sessão", command=self.deslogar)
 
             self._topMatriculaMenu.add_command(label="Solicitar Matricula",
                                                command=self.alunoLogado.aluno.solicitarMatricula)
@@ -158,10 +157,14 @@ class TelaInicial(tk.Tk):
         self._loginButton['state'] = 'normal'
 
         self._usuarioEntry['state'] = 'normal'
-        self._usuarioEntry['state'].delete(0, 'end')
+        self._usuarioEntry.delete(0, 'end')
 
         self._senhaEntry['state'] = 'normal'
-        self._senhaEntry['state'].delete(0, 'end')
+        self._senhaEntry.delete(0, 'end')
+
+        self._openWindows.clear()
+
+        del self._alunoLogado
 
 
     def novaJanela(self, nome, janela, **kwargs):

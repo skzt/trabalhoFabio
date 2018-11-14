@@ -5,14 +5,13 @@ from Aluno import Aluno
 
 
 class Login:
-    def __init__(self, janelaPrincipal, usuario, widgets):
+    def __init__(self, janelaPrincipal, usuario):
         """ Classe responsavel por fazer o Login no sistema e operações relacionadas com login.
         usuario -> Variavel que observa o widget usuarioEntry
         senha -> Variavel que observa o widget senhaEntry
         widgets -> os widgets de usuario e senha, respectivamente. Utilizados para alteração de estado do widget."""
 
         self._janelaPrincipal = janelaPrincipal
-        self._widgets = widgets
         self._usuario = usuario
         self._aluno = None
 
@@ -156,15 +155,13 @@ class Login:
                 confNovaSenhaVar.set("")
 
     def encerrarsessao(self):
-        self._aluno.deslogar()
         del self._aluno
 
+        self._janelaPrincipal._openWindows.clear()
         # TODO: Passar o maximo possivel de encerrar sessão pra janela principal!
-        for window in self._janelaPrincipal.openWindows:
-            window[1].destroy()
+
 
         self.DB.close()
-        self._widgets[0].focus()
         self._janelaPrincipal.deslogar()
 
     def __del__(self):
