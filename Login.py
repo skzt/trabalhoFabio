@@ -154,6 +154,7 @@ class Login:
                 novaSenhaVar.set("")
                 confNovaSenhaVar.set("")
 
+
     def encerrarsessao(self):
         del self._aluno
 

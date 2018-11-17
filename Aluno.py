@@ -21,6 +21,7 @@ class Aluno:
     def verHistorico(self):
         self._matriculado.verHistorico()
 
+
     #def deslogar(self):
      #   self._janelaPrincipal = None
       #  self._idAluno = None
