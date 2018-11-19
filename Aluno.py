@@ -21,22 +21,11 @@ class Aluno:
     def verHistorico(self):
         self._matriculado.verHistorico()
 
-
-    #def deslogar(self):
-     #   self._janelaPrincipal = None
-      #  self._idAluno = None
-       # self.nome = None
-    #    self.cpf = None
-    #    self.dataNasc = None
-    #    self.curso = None
-    ##    self._matriculado.deslogar()
-    #    self._matriculado = None
-    #    self.logado = False
-
-
+    def deslogar(self):
+        self._matriculado.deslogar()
 
     def __del__(self):
-        del self._matriculado
+        # del self._matriculado
         print("OIIII ALUNO")
 
     # <editor-fold desc="Property Aluno">

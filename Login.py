@@ -154,16 +154,8 @@ class Login:
                 novaSenhaVar.set("")
                 confNovaSenhaVar.set("")
 
-
     def encerrarsessao(self):
-        del self._aluno
-
-        self._janelaPrincipal._openWindows.clear()
-        # TODO: Passar o maximo possivel de encerrar sessão pra janela principal!
-
-
-        self.DB.close()
-        self._janelaPrincipal.deslogar()
+        self._aluno.deslogar()
 
     def __del__(self):
         print("OIIII LOGIN")

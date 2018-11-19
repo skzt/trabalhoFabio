@@ -6,6 +6,7 @@ import platform as pf
 from tkinter import messagebox
 from Login import Login
 from pymysql import err
+from gc import collect as garbageCollector
 
 
 class TelaInicial(tk.Tk):
@@ -149,23 +150,6 @@ class TelaInicial(tk.Tk):
             self._loginButton['state'] = 'normal'
             self.alunoLogado = None
 
-    def deslogar(self):
-        # TODO: adicionar todos os top menus que forem adicionados após o login
-        self._topLoginMenu.delete(0, 1)
-        self._topMatriculaMenu.delete(0, 2)
-
-        self._loginButton['state'] = 'normal'
-
-        self._usuarioEntry['state'] = 'normal'
-        self._usuarioEntry.delete(0, 'end')
-
-        self._senhaEntry['state'] = 'normal'
-        self._senhaEntry.delete(0, 'end')
-
-        self._openWindows.clear()
-
-        del self._alunoLogado
-
 
     def novaJanela(self, nome, janela, **kwargs):
         """
@@ -219,8 +203,6 @@ class TelaInicial(tk.Tk):
                 self._openWindows.clear()
                 self._janelaTopo.grid_remove()
 
-            #self._topJanelaMenu.focus()
-
     def _mudarJanela(self, janela, **kwargs):
         index = self._openWindows.index(janela)
         self._flagJanela.set(index)
@@ -228,7 +210,33 @@ class TelaInicial(tk.Tk):
         self._janelaTopo = janela
         self._janelaTopo.grid(kwargs)
 
-# verificar com professor: alunoLogado é publico ou privad no diagrama de classes?
+    def deslogar(self):
+        # TODO: adicionar todos os top menus que forem adicionados após o login
+        self._topLoginMenu.delete(0, 'end')
+        self._topMatriculaMenu.delete(0, 'end')
+        self._topJanelaMenu.delete(0, 'end')
+
+        self._loginButton['state'] = 'normal'
+
+        self._usuarioEntry['state'] = 'normal'
+        self._usuarioEntry.delete(0, 'end')
+
+        self._senhaEntry['state'] = 'normal'
+        self._senhaEntry.delete(0, 'end')
+
+        self._senhaVar.set('')
+        self._usuarioVar.set('')
+        self._flagJanela.set(0)
+
+        self._openWindows.clear()
+        self._janelaTopo = None
+
+        self._alunoLogado.encerrarsessao()
+        self._alunoLogado = None
+
+        garbageCollector()
+
+    # verificar com professor: alunoLogado é publico ou privad no diagrama de classes?
     @property
     def alunoLogado(self):
         return self._alunoLogado
