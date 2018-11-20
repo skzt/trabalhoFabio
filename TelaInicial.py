@@ -5,6 +5,7 @@ import tkinter as tk
 import platform as pf
 from tkinter import messagebox
 from Login import Login
+from Sistema import Sistema
 from pymysql import err
 from gc import collect as garbageCollector
 
@@ -26,12 +27,14 @@ class TelaInicial(tk.Tk):
         self._openWindows = []
         self._janelaTopo = None
 
+        self._sistema = Sistema()
         self._alunoLogado = None
         self._frameLogin = tk.LabelFrame(self)
         self._topLoginMenu = None
         self._topMatriculaMenu = None
         self._topBoletoMenu = None
         self._topJanelaMenu = None
+        self._topSistemaMenu = None
         self._loginButton = None
 
         self._topMenu()
@@ -49,12 +52,12 @@ class TelaInicial(tk.Tk):
         self._topMatriculaMenu = tk.Menu(self, tearoff=0)
         self._topBoletoMenu = tk.Menu(self, tearoff=0)
         self._topJanelaMenu = tk.Menu(self, tearoff=0)
+        self._topSistemaMenu = tk.Menu(self, tearoff=0)
 
         # =======================================================================
         # Menu de Login
         # =======================================================================
 
-        # self._topLoginMenu.add_command(label="Encerrar Aplicação", command=self.encerrarAplicacao)
         _topMenuBar.add_cascade(label="Login", menu=self._topLoginMenu)
 
         # =======================================================================
@@ -71,6 +74,14 @@ class TelaInicial(tk.Tk):
         # Menu de Controle de Janelas
         # =======================================================================
         _topMenuBar.add_cascade(label="Janelas", menu=self._topJanelaMenu)
+
+        # =======================================================================
+        # Menu de Simulação do Sistema
+        # =======================================================================
+        _topMenuBar.add_separator()
+        _topMenuBar.add_separator()
+        _topMenuBar.add_separator()
+        _topMenuBar.add_cascade(label="Sistema", menu=self._topSistemaMenu)
 
     def _loginWindow(self):
         # =======================================================================
@@ -114,7 +125,6 @@ class TelaInicial(tk.Tk):
         _sairButton.grid(row=8, column=0)
         self._frameLogin.grid(row=0, column=0, sticky='ns')
         tk.Grid.rowconfigure(self, 0, weight=1)
-        # TODO: criar metodo de saida e definir como usuario logado sera guardado e usado!
 
     def _efetuarLogin(self):
         try:
@@ -149,7 +159,6 @@ class TelaInicial(tk.Tk):
         else:
             self._loginButton['state'] = 'normal'
             self.alunoLogado = None
-
 
     def novaJanela(self, nome, janela, **kwargs):
         """
@@ -244,6 +253,11 @@ class TelaInicial(tk.Tk):
     @alunoLogado.setter
     def alunoLogado(self, login):
         self._alunoLogado = login
+
+    @property
+    def terminoMatricula(self):
+        return self._terminoMatricula
+
 
 
 if __name__ == '__main__':
