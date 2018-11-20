@@ -65,6 +65,13 @@ CREATE TABLE `DISCIPLINA_ALUNO` (
   ON UPDATE CASCADE
 )ENGINE = InnoDB;
 
+CREATE TABLE `DEPENDENCIAS` (
+  `idDependencia` INT(10) NOT NULL AUTO_INCREMENT,
+  `idDisciplinaDependente` INT(10) NOT NULL,
+  `idDisciplina` INT(10) NOT NULL,
+  PRIMARY KEY (idDependencia)
+)ENGINE = InnoDB;
+
 insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Pedro Vaz Costa Nunes', 01234567890, '08/08/08', 'CC');
 insert into `LOGIN` (`usuario`, `senha`, `idAluno`) values ('aa', MD5('aa'), 1);
 insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Nelson Plinio', 0987654321, '08/08/08', 'CC');
@@ -88,6 +95,7 @@ insert into `DISCIPLINA` (`codigo`, `nome`, `numCredito`, `semestreGrade`) value
 insert into `DISCIPLINA` (`codigo`, `nome`, `numCredito`, `semestreGrade`) values (1013, 'Língua Portuguesa 1', 60, '03');
 insert into `DISCIPLINA` (`codigo`, `nome`, `numCredito`, `semestreGrade`) values (1014, 'Eletricidade e Magnetismo', 60, '03');
 
+-- <editor-fold desc="Inserts Semestre Disciplina">
 insert into `SEMESTRE_DISCIPLINA` (`idDisciplina`, `horario`, `diasSemana`, `sala`, `bloco`, `semestre`)
   values (1, '20:30-22:00', 'seg-quin', 101, 'C', '2018-2');
 insert into `SEMESTRE_DISCIPLINA` (`idDisciplina`, `horario`, `diasSemana`, `sala`, `bloco`, `semestre`)
@@ -120,3 +128,10 @@ insert into `SEMESTRE_DISCIPLINA` (`idDisciplina`, `horario`, `diasSemana`, `sal
   values (14, '20:30-22:00', 'seg-quin', 103, 'D', '2018-2');
 insert into `SEMESTRE_DISCIPLINA` (`idDisciplina`, `horario`, `diasSemana`, `sala`, `bloco`, `semestre`)
   values (15, '20:30-22:00', 'ter-sex', 202, 'C', '2018-2');
+-- </editor-fold>
+
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1007, 1006);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1001, 1000);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1008, 1002);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1010, 1001);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1012, 1001);

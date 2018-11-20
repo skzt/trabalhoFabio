@@ -27,7 +27,7 @@ class TelaInicial(tk.Tk):
         self._openWindows = []
         self._janelaTopo = None
 
-        self._sistema = Sistema()
+        self._sistema = Sistema(self)
         self._alunoLogado = None
         self._frameLogin = tk.LabelFrame(self)
         self._topLoginMenu = None
@@ -154,10 +154,15 @@ class TelaInicial(tk.Tk):
                                                command=self.alunoLogado.aluno.cancelarMatricula)
             self._topMatriculaMenu.add_command(label="Ver Historico", command=self.alunoLogado.aluno.verHistorico)
 
+            self._topSistemaMenu.add_command(label="Definir Termino de Matricula", command=self.sistema.iniciarMatricula)
+            self._topSistemaMenu.add_command(label="Terminar o Periodo de Matricula", command=self.sistema.terminarMatricula)
+
             # Top Menus do Aluno
             pass
         else:
             self._loginButton['state'] = 'normal'
+            self._usuarioEntry['state'] = 'normal'
+            self._senhaEntry['state'] = 'normal'
             self.alunoLogado = None
 
     def novaJanela(self, nome, janela, **kwargs):
@@ -255,9 +260,8 @@ class TelaInicial(tk.Tk):
         self._alunoLogado = login
 
     @property
-    def terminoMatricula(self):
-        return self._terminoMatricula
-
+    def sistema(self):
+        return self._sistema
 
 
 if __name__ == '__main__':
