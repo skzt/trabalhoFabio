@@ -30,18 +30,52 @@ class Sistema:
     def terminarMatricula(self):
         self.terminoMatricula = strftime("%d-%m-%Y")
 
-        listaAlunos = []
+        listaCursando = []
+        listaRecusados = []
 
         select = ''' SELECT DISTINCT idAluno FROM DISCIPLINA_ALUNO WHERE situacao = 1; '''
 
+        cursorIdAluno = self.DB.cursor()
+
+        cursorIdAluno.execute(select)
+
+        for idAluno in cursorIdAluno.fetchall():
+            cursor = self.DB.cursor()
+            select = '''
+SELECT DISCIPLINA_ALUNO.idDisciplina,
+       DEPENDENCIAS.idDisciplina
+FROM DISCIPLINA_ALUNO
+  LEFT JOIN DEPENDENCIAS
+    ON DISCIPLINA_ALUNO.idDisciplina = DEPENDENCIAS.idDisciplinaDependente
+WHERE DISCIPLINA_ALUNO.idAluno = %d
+  AND DISCIPLINA_ALUNO.situacao = 1;
+''' % idAluno[0]
+
+            cursor.execute(select)
+            for disciplina in cursor.fetchall():
+                if disciplina[1] is None:
+                    listaCursando.append((idAluno[0], disciplina[0]))
+                else:
+                    listaRecusados.append(idAluno + disciplina)
+            cursor.close()
+        cursorIdAluno.close()
         cursor = self.DB.cursor()
 
-        cursor.execute(select)
+        for disciplina in listaCursando:
+            update = '''
+UPDATE DISCIPLINA_ALUNO
+SET situacao = 2
+WHERE idAluno = %d
+  AND idDisciplina = %d;
+            ''' %(disciplina[0], disciplina[1])
 
-        for idAluno in cursor.fetchall():
-            listaAlunos.append(idAluno[0])
+            cursor.execute(update)
+            self.DB.commit()
 
-        K
+
+        for disciplina in listaRecusados:
+            print(disciplina)
+
 
 
     @property

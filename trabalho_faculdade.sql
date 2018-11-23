@@ -130,8 +130,8 @@ insert into `SEMESTRE_DISCIPLINA` (`idDisciplina`, `horario`, `diasSemana`, `sal
   values (15, '20:30-22:00', 'ter-sex', 202, 'C', '2018-2');
 -- </editor-fold>
 
-insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1007, 1006);
-insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1001, 1000);
-insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1008, 1002);
-insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1010, 1001);
-insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (1012, 1001);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (6, 5);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (7, 1);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (8, 2);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (11, 7);
+insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (13, 7);

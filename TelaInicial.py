@@ -197,7 +197,7 @@ class TelaInicial(tk.Tk):
 
     def fecharJanela(self, evt = None):
         print("FECHAR JANELA")
-        #print(evt.widget['text'])
+
         if self._janelaTopo is None:
             return
         else:

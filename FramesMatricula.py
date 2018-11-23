@@ -28,7 +28,8 @@ class FramesMatricula(tk.LabelFrame):
         self._boxDisciplinas = None
         self._boxSelecionados = None
         self._boxSemestre = None
-        self._treeHistorico = None
+        self._treeHistorico = ttk.Treeview(self,
+                                           columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
 
         self._listaDisciplinas = tk.Variable()
         self._listaSelecionados = tk.Variable()
@@ -216,8 +217,6 @@ class FramesMatricula(tk.LabelFrame):
     def frameHistorico(self):
         self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='n')
 
-        self._treeHistorico = ttk.Treeview(self,
-                                           columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
         self._treeHistorico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
 
         self._treeHistorico.column('#0', width=140)
@@ -240,9 +239,11 @@ class FramesMatricula(tk.LabelFrame):
         self._treeHistorico.heading('Situação', text='Situação')
         self._treeHistorico.column('Situação', width=100, anchor='center')
 
-        self._treeHistorico.pack()
+        self._treeHistorico.grid()
 
-        self._retag('frameMatricula', self, self._treeHistorico)
+        self._retag('frameMatricula',
+                    self,
+                    self._treeHistorico)
 
     def __del__(self):
         print("oiiiiiiiiiiiiii frame")
