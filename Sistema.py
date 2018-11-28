@@ -1,4 +1,5 @@
 import tkinter as tk
+from dataEntry import DataEntry
 from time import strftime
 from ConexaoBanco import ConexaoBanco
 
@@ -17,8 +18,7 @@ class Sistema:
         dataLabel = tk.Label(inicio)
         dataLabel['text'] = "Data de Termino"
 
-        dataEntry = tk.Entry(inicio)
-        dataEntry['textvariable'] = self._terminoMatricula
+        dataEntry = DataEntry(inicio, self._terminoMatricula)
 
         dataLabel.grid(row=0, column=0)
         dataEntry.grid(row=1, column=0)
