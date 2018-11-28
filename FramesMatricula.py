@@ -14,10 +14,8 @@ class FramesMatricula(tk.LabelFrame):
     metodos -> Dicionario com metodos necessarios para cada tipo de frame.
     """
 
-    # TODO: Criar menu para alternar entre janelas na GRID
     def __init__(self, master, metodos=None, *arg, **kwarg):
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
-        # TODO: Fazer bind para fechar frames com o ESC, mas não destruir a classe.
 
         self.focus()
         self._janelaPrincipal = master
@@ -45,7 +43,6 @@ class FramesMatricula(tk.LabelFrame):
         :return: VOID
         """
 
-        print(type(widgets))
         for widget in widgets:
             widget.bindtags((tag,) + widget.bindtags())
 
@@ -68,7 +65,6 @@ class FramesMatricula(tk.LabelFrame):
                 disciplinasSelecionadas.append(selecionado)
                 disciplinasSelecionadas.sort()
                 self.listaSelecionados = disciplinasSelecionadas
-        print(self.listaSelecionados)
 
     def _removerDisciplina(self):
         index = self.boxSelecionados.curselection()
@@ -215,7 +211,17 @@ class FramesMatricula(tk.LabelFrame):
                     self._boxDisciplinas)
 
     def frameHistorico(self):
-        self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='n')
+        self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='nswe')
+
+        scrollbar = tk.Scrollbar(self)
+
+
+        self._treeHistorico['yscrollcommand'] = scrollbar
+        self._treeHistorico.yscrollcommand = scrollbar
+        style = ttk.Style(self)
+        style.configure('Treeview', rowheight=30)
+        self._treeHistorico.tag_configure('par', background='#A39E9E')
+        self._treeHistorico.tag_configure('impar', background='#DFDFDF')
 
         self._treeHistorico['columns'] = ('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação')
 
@@ -237,9 +243,10 @@ class FramesMatricula(tk.LabelFrame):
         self._treeHistorico.column('Créditos', width=70, anchor='center')
 
         self._treeHistorico.heading('Situação', text='Situação')
-        self._treeHistorico.column('Situação', width=100, anchor='center')
+        self._treeHistorico.column('Situação', width=110, anchor='center')
 
-        self._treeHistorico.grid()
+        self._treeHistorico.pack(side='left', fill='y')
+        scrollbar.pack(side='right', fill='y')
 
         self._retag('frameMatricula',
                     self,

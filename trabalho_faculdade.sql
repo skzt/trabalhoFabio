@@ -5,7 +5,7 @@ use faculdade;
 CREATE TABLE `ALUNO` (
   `idAluno` INT(10) NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(45) NULL,
-  `cpf` INT(11) NULL,
+  `cpf` VARCHAR(11) NULL,
   `dataNascimento` VARCHAR(45) NULL,
   `curso` VARCHAR(45) NULL,
   PRIMARY KEY (`idAluno`))
@@ -72,10 +72,17 @@ CREATE TABLE `DEPENDENCIAS` (
   PRIMARY KEY (idDependencia)
 )ENGINE = InnoDB;
 
-insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Pedro Vaz Costa Nunes', 01234567890, '08/08/08', 'CC');
+#Aluno 1:
+insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Pedro Vaz Costa Nunes', '01234567890', '08/08/08', 'CC');
 insert into `LOGIN` (`usuario`, `senha`, `idAluno`) values ('aa', MD5('aa'), 1);
-insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Nelson Plinio', 0987654321, '08/08/08', 'CC');
+
+#Aluno 2:
+insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Nelson Plinio', '09876543210', '08/08/08', 'CC');
 insert into `LOGIN` (`usuario`, `senha`, `idAluno`) values ('bb', MD5('bb'), 2);
+
+#Aluno 3:
+insert into `ALUNO` (`nome`, `cpf`, `dataNascimento`, `curso`) values ('Renato', '01234598760', '08/08/08', 'CC');
+insert into `LOGIN` (`usuario`, `senha`, `idAluno`) values ('cc', MD5('cc'), 3);
 
 insert into `DISCIPLINA` (`codigo`, `nome`, `numCredito`, `semestreGrade`) values (1000, 'Algoritmos', 60, '01');
 insert into `DISCIPLINA` (`codigo`, `nome`, `numCredito`, `semestreGrade`) values (1002, 'Fundamentos da Computação 1', 60, '01');
@@ -135,3 +142,26 @@ insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (7,
 insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (8, 2);
 insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (11, 7);
 insert into `DEPENDENCIAS` (`idDisciplinaDependente`, `idDisciplina`) values (13, 7);
+
+#Aluno 1 -> Calouro, nenhuma disciplina cadastrada para ele.
+#Aluno 2 -> Passou em todas materias do primeiro semestre
+
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (1, 1, 2, 5, 8.5);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (2, 3, 2, 5, 7.1);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (3, 5, 2, 5, 6.0);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (4, 6, 2, 5, 9.3);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (5, 7, 2, 5, 7.8);
+
+#Aluno 3 -> Veio de transferencia, possui apenas algumas materias do primeiro semestre por aproveitamento de creditos.
+
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (2, 3, 3, 4, 7.0);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (4, 6, 3, 4, 7.0);
+INSERT INTO `DISCIPLINA_ALUNO` (`idDisciplina`, `idSemestreDisciplina`, `idALuno`, `situacao`, `nota`)
+values (5, 7, 3, 4, 7.0);

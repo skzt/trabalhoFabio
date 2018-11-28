@@ -21,6 +21,8 @@ class TelaInicial(tk.Tk):
         elif __OS__ == 'Linux':
             self.attributes('-zoomed', True)
 
+        self.minsize(width=400, height=400)
+
         self._usuarioVar = tk.StringVar()
         self._senhaVar = tk.StringVar()
         self._flagJanela = tk.IntVar()
@@ -179,7 +181,7 @@ class TelaInicial(tk.Tk):
 
         if janela in self._openWindows:
             self._mudarJanela(janela, **kwargs)
-
+            print("oi")
             return False
 
         else:
@@ -201,10 +203,6 @@ class TelaInicial(tk.Tk):
         if self._janelaTopo is None:
             return
         else:
-            print("flagJanela: ", self._flagJanela.get())
-            print("topJanela Index: ", self._topJanelaMenu.index('end'))
-            print("openWindows Index", self._openWindows.index(self._janelaTopo))
-
             self._topJanelaMenu.delete(self._flagJanela.get())
 
             if len(self._openWindows) > 1:
@@ -229,6 +227,7 @@ class TelaInicial(tk.Tk):
         self._topLoginMenu.delete(0, 'end')
         self._topMatriculaMenu.delete(0, 'end')
         self._topJanelaMenu.delete(0, 'end')
+        self._topSistemaMenu.delete(0, 'end')
 
         self._loginButton['state'] = 'normal'
 

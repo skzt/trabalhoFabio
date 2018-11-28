@@ -33,50 +33,85 @@ class Sistema:
         listaCursando = []
         listaRecusados = []
 
-        select = ''' SELECT DISTINCT idAluno FROM DISCIPLINA_ALUNO WHERE situacao = 1; '''
+        selectD = ''' SELECT DISTINCT idAluno FROM DISCIPLINA_ALUNO WHERE situacao = 1; '''
 
         cursorIdAluno = self.DB.cursor()
+        cursorDependentes = self.DB.cursor()
+        cursorDisciplinas = self.DB.cursor()
 
-        cursorIdAluno.execute(select)
+        cursorIdAluno.execute(selectD)
 
         for idAluno in cursorIdAluno.fetchall():
-            cursor = self.DB.cursor()
-            select = '''
-SELECT DISCIPLINA_ALUNO.idDisciplina,
-       DEPENDENCIAS.idDisciplina
-FROM DISCIPLINA_ALUNO
-  LEFT JOIN DEPENDENCIAS
-    ON DISCIPLINA_ALUNO.idDisciplina = DEPENDENCIAS.idDisciplinaDependente
-WHERE DISCIPLINA_ALUNO.idAluno = %d
-  AND DISCIPLINA_ALUNO.situacao = 1;
-''' % idAluno[0]
 
-            cursor.execute(select)
-            for disciplina in cursor.fetchall():
+            selectDependentes = '''
+            SELECT DISCIPLINA_ALUNO.idDisciplina,
+                   DEPENDENCIAS.idDisciplina
+            FROM DISCIPLINA_ALUNO
+              LEFT JOIN DEPENDENCIAS
+                ON DISCIPLINA_ALUNO.idDisciplina = DEPENDENCIAS.idDisciplinaDependente
+            WHERE DISCIPLINA_ALUNO.idAluno = %d
+              AND DISCIPLINA_ALUNO.situacao = 1;
+            ''' % idAluno[0]
+
+            cursorDependentes.execute(selectDependentes)
+
+            selectDisciplinas = '''
+            SELECT idDisciplina
+            FROM disciplina_aluno
+            WHERE idAluno = %d
+              AND situacao IN (4, 5);
+                        ''' % idAluno
+
+            cursorDisciplinas.execute(selectDisciplinas)
+            listaDisciplinas = []
+
+            # lista as Disciplinas que o aluno já foi aprovado.
+            for disciplina in cursorDisciplinas.fetchall():
+                listaDisciplinas.append(disciplina[0])
+            cursorDisciplinas.close()
+
+            for disciplina in cursorDependentes.fetchall():
+                # Caso não tenha dependencia
                 if disciplina[1] is None:
+                    # (idAluno, disciplinaSolicitada)
                     listaCursando.append((idAluno[0], disciplina[0]))
+                # Caso tenha dependencia
                 else:
-                    listaRecusados.append(idAluno + disciplina)
-            cursor.close()
+                    if disciplina[1] in listaDisciplinas:
+                        # Caso o aluno tenha cumprido o requisito
+                        listaCursando.append((idAluno[0], disciplina[0]))
+                    else:
+                        # Caso o aluno não tenha cumprido o requisito
+                        listaRecusados.append((idAluno[0], disciplina[0]))
+
+        cursorDependentes.close()
+        cursorDisciplinas.close()
         cursorIdAluno.close()
+
         cursor = self.DB.cursor()
 
         for disciplina in listaCursando:
             update = '''
-UPDATE DISCIPLINA_ALUNO
-SET situacao = 2
-WHERE idAluno = %d
-  AND idDisciplina = %d;
-            ''' %(disciplina[0], disciplina[1])
+        UPDATE DISCIPLINA_ALUNO
+        SET situacao = 2
+        WHERE idAluno = %d
+          AND idDisciplina = %d;
+                    ''' % (disciplina[0], disciplina[1])
 
             cursor.execute(update)
             self.DB.commit()
 
-
         for disciplina in listaRecusados:
-            print(disciplina)
+                update = '''
+        UPDATE DISCIPLINA_ALUNO
+        SET situacao = 3
+        WHERE idAluno = %d
+          AND idDisciplina = %d;
+                    ''' % (disciplina[0], disciplina[1])
 
-
+                cursor.execute(update)
+                self.DB.commit()
+        cursor.close()
 
     @property
     def terminoMatricula(self):

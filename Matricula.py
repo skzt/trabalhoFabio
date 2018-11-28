@@ -32,7 +32,7 @@ class Matricula:
 
         if self._frameCancelamento is None:
             self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
-            self._carregarProcessando()
+        self._carregarProcessando()
         self._frameCancelamento.frameCancelar()
 
     def _carregarProcessando(self):
@@ -44,7 +44,8 @@ class Matricula:
 
         cursor = self.DB.cursor()
 
-        select = ''' SELECT DISCIPLINA.codigo, DISCIPLINA.nome
+        select = '''
+        SELECT DISCIPLINA.codigo, DISCIPLINA.nome
         FROM DISCIPLINA
                JOIN DISCIPLINA_ALUNO
                  ON DISCIPLINA.idDisciplina = DISCIPLINA_ALUNO.idDisciplina
@@ -79,14 +80,17 @@ class Matricula:
                         "Nono Semestre": 9,
                         "Decimo Semestre": 10}
 
-        select = '''SELECT DISCIPLINA.codigo, DISCIPLINA.nome
-FROM DISCIPLINA
-WHERE idDisciplina != ALL(SELECT idDisciplina
-                          FROM DISCIPLINA_ALUNO
-                          WHERE DISCIPLINA_ALUNO.idAluno = %d
-                            AND DISCIPLINA_ALUNO.situacao != 6
-                            AND DISCIPLINA_ALUNO.situacao != 7)
-AND semestreGrade = %d;''' \
+        select = '''
+        SELECT DISCIPLINA.codigo,
+               DISCIPLINA.nome
+        FROM DISCIPLINA
+        WHERE idDisciplina != ALL (
+                                    SELECT idDisciplina
+                                    FROM DISCIPLINA_ALUNO
+                                    WHERE DISCIPLINA_ALUNO.idAluno = %d
+                                      AND DISCIPLINA_ALUNO.situacao NOT IN (3, 6, 7)
+                                  )
+          AND semestreGrade = %d;''' \
                  % (self._idAluno, mapaSemestre[widget.get()])
 
         cursor = self.DB.cursor()
@@ -101,7 +105,6 @@ AND semestreGrade = %d;''' \
                 listaDisciplinas.append(tmp)
             else:
                 continue
-        # TODO: faze sort ignorando o codigo
         cursor.close()
         listaDisciplinas.sort()
         self._frameSolicitacao.listaDisciplinas = listaDisciplinas
@@ -171,11 +174,12 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
         self._popularHistorico()
 
     def _popularHistorico(self):
+        self._frameHistorico.treeHistorico.delete(*self._frameHistorico.treeHistorico.get_children())
         cursor = self.DB.cursor()
         situacao = {1: "PROCESSANDO",
                     2: "CURSANDO",
                     3: "RECUSADO",
-                    4: "APROVEITAMENTO DE CREDITO",
+                    4: "APROVEITAMENTO\nDE CREDITO",
                     5: "APROVADO",
                     6: "REPROVADO",
                     7: "REPROVADO POR FALTA"}
@@ -225,10 +229,13 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
                 treeItem = self._frameHistorico.treeHistorico.insert('',
                                                                      'end',
                                                                      text=mapaSemestre[semestre])
-
+                tmp = 0
                 for disciplina in semestres[semestre]:
-                    self._frameHistorico.treeHistorico.insert(treeItem, 'end', values=disciplina)
-
+                    if tmp % 2 == 0:
+                        self._frameHistorico.treeHistorico.insert(treeItem, 'end', values=disciplina, tags=('par',))
+                    else:
+                        self._frameHistorico.treeHistorico.insert(treeItem, 'end', values=disciplina, tags=('impar',))
+                    tmp += 1
         cursor.close()
 
     def deslogar(self):
