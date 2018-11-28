@@ -7,7 +7,12 @@ from FramesMatricula import FramesMatricula
 
 class Matricula:
     def __init__(self, janelaPrincipal, idAluno, curso):
-        self.janelaPrincipal = janelaPrincipal
+        self._janelaPrincipal = janelaPrincipal
+
+        if strftime("%d/%m/%Y") > self._janelaPrincipal.sistema.terminoMatricula:
+            self._janelaPrincipal.fimMatricula()
+            return
+
         self._curso = curso
         self._idAluno = idAluno
 
@@ -24,14 +29,14 @@ class Matricula:
                    "confirmarSolicitacao": self._confirmarSolicitacao
                    }
         if self._frameSolicitacao is None:
-            self._frameSolicitacao = FramesMatricula(self.janelaPrincipal, metodos)
+            self._frameSolicitacao = FramesMatricula(self._janelaPrincipal, metodos)
         self._frameSolicitacao.frameSolicitar()
 
     def cancelarMatricula(self):
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
 
         if self._frameCancelamento is None:
-            self._frameCancelamento = FramesMatricula(self.janelaPrincipal, metodos)
+            self._frameCancelamento = FramesMatricula(self._janelaPrincipal, metodos)
         self._carregarProcessando()
         self._frameCancelamento.frameCancelar()
 
@@ -111,7 +116,7 @@ class Matricula:
 
     def _confirmarSolicitacao(self):
         self._frameSolicitacao.focus()
-        self.janelaPrincipal.fecharJanela()
+        self._janelaPrincipal.fecharJanela()
 
         cursor = self.DB.cursor()
         for disciplina in self._frameSolicitacao.listaSelecionados:
@@ -141,7 +146,7 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
 
     def _confirmarCancelamento(self):
         self._frameCancelamento.focus()
-        self.janelaPrincipal.fecharJanela()
+        self._janelaPrincipal.fecharJanela()
 
         select = ''' select DISCIPLINA.codigo, DISCIPLINA.idDisciplina
 from DISCIPLINA
@@ -169,7 +174,7 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
 
     def verHistorico(self):
         if self._frameHistorico is None:
-            self._frameHistorico = FramesMatricula(self.janelaPrincipal)
+            self._frameHistorico = FramesMatricula(self._janelaPrincipal)
         self._frameHistorico.frameHistorico()
         self._popularHistorico()
 

@@ -23,11 +23,15 @@ class FramesMatricula(tk.LabelFrame):
 
         self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", self._janelaPrincipal.fecharJanela)
 
+        self._flagHistorico = False
         self._boxDisciplinas = None
         self._boxSelecionados = None
         self._boxSemestre = None
-        self._treeHistorico = ttk.Treeview(self,
-                                           columns=('Codigo', 'Disciplina', 'Periodo', 'Nota', 'Créditos', 'Situação'))
+        self._treeHistorico = None
+        self._scrollbar = None
+
+        style = ttk.Style(self)
+        style.configure('Treeview', rowheight=30)
 
         self._listaDisciplinas = tk.Variable()
         self._listaSelecionados = tk.Variable()
@@ -79,10 +83,6 @@ class FramesMatricula(tk.LabelFrame):
             tmp.sort()
             self.listaDisciplinas = tmp
             self.boxSelecionados.delete(index)
-
-            # if self.boxSemestre is not None:
-            #             #     self.boxSemestre.event_generate("<<ComboboxSelected>>")
-            #             # else:
 
     def frameSolicitar(self):
         # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
@@ -213,13 +213,23 @@ class FramesMatricula(tk.LabelFrame):
     def frameHistorico(self):
         self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='nswe')
 
-        scrollbar = tk.Scrollbar(self)
+        if self._flagHistorico is False:
+            self._scrollbar = tk.Scrollbar(self)
+            self._treeHistorico = ttk.Treeview(self,
+                                               columns=('Codigo',
+                                                        'Disciplina',
+                                                        'Periodo',
+                                                        'Nota',
+                                                        'Créditos',
+                                                        'Situação')
+                                               )
 
+            self._treeHistorico.pack(side='left', fill='y')
+            self._scrollbar.pack(side='right', fill='y')
 
-        self._treeHistorico['yscrollcommand'] = scrollbar
-        self._treeHistorico.yscrollcommand = scrollbar
-        style = ttk.Style(self)
-        style.configure('Treeview', rowheight=30)
+            self._flagHistorico = True
+        self._treeHistorico['yscrollcommand'] = self._scrollbar
+        self._treeHistorico.yscrollcommand = self._scrollbar
         self._treeHistorico.tag_configure('par', background='#A39E9E')
         self._treeHistorico.tag_configure('impar', background='#DFDFDF')
 
@@ -245,8 +255,6 @@ class FramesMatricula(tk.LabelFrame):
         self._treeHistorico.heading('Situação', text='Situação')
         self._treeHistorico.column('Situação', width=110, anchor='center')
 
-        self._treeHistorico.pack(side='left', fill='y')
-        scrollbar.pack(side='right', fill='y')
 
         self._retag('frameMatricula',
                     self,

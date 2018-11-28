@@ -57,7 +57,7 @@ class Sistema:
 
             selectDisciplinas = '''
             SELECT idDisciplina
-            FROM disciplina_aluno
+            FROM DISCIPLINA_ALUNO
             WHERE idAluno = %d
               AND situacao IN (4, 5);
                         ''' % idAluno

@@ -22,6 +22,7 @@ class TelaInicial(tk.Tk):
             self.attributes('-zoomed', True)
 
         self.minsize(width=400, height=400)
+        self.title("FSG - Faculdade Soneca de Goiânia")
 
         self._usuarioVar = tk.StringVar()
         self._senhaVar = tk.StringVar()
@@ -197,7 +198,7 @@ class TelaInicial(tk.Tk):
 
             return True
 
-    def fecharJanela(self, evt = None):
+    def fecharJanela(self):
         print("FECHAR JANELA")
 
         if self._janelaTopo is None:
@@ -221,6 +222,13 @@ class TelaInicial(tk.Tk):
         self._janelaTopo.grid_remove()
         self._janelaTopo = janela
         self._janelaTopo.grid(kwargs)
+
+    def fimMatricula(self):
+        for _ in self._openWindows:
+            self.fecharJanela()
+        self._topJanelaMenu.delete(0, 'end')
+        self._topMatriculaMenu.configure(0, status='disabled')
+        self._topMatriculaMenu.configure(1, status='disabled')
 
     def deslogar(self):
         # TODO: adicionar todos os top menus que forem adicionados após o login
