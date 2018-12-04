@@ -21,7 +21,7 @@ class FramesMatricula(tk.LabelFrame):
         self._janelaPrincipal = master
         self._metodos = metodos
 
-        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", self._janelaPrincipal.fecharJanela)
+        self._janelaPrincipal.bind_class('frameMatricula', "<Escape>", lambda _: self._janelaPrincipal.fecharJanela())
 
         self._flagHistorico = False
         self._boxDisciplinas = None
@@ -132,19 +132,26 @@ class FramesMatricula(tk.LabelFrame):
         _confirmarButton = tk.Button(self)
         _confirmarButton['text'] = "Solicitar Matricula"
         _confirmarButton['command'] = self._metodos["confirmarSolicitacao"]
+        _confirmarButton.bind("<Return>", lambda _: self._metodos["confirmarSolicitacao"]())
+
+        _cancelarButton = tk.Button(self)
+        _cancelarButton['text'] = "Fechar"
+        _cancelarButton['command'] = self._janelaPrincipal.fecharJanela
+        _cancelarButton.bind("<Return>", lambda _: self._janelaPrincipal.fecharJanela)
 
         _labelSemestre.grid(row=0, column=0)
         self._boxSemestre.grid(row=1, column=0)
 
         _labelDisciplinas.grid(row=2, column=0)
-        self._boxDisciplinas.grid(row=3, column=0, rowspan=2)
+        self._boxDisciplinas.grid(row=3, column=0, rowspan=2, padx=(5, 0))
 
         _labelSelecionados.grid(row=2, column=2)
-        self._boxSelecionados.grid(row=3, column=2, rowspan=2)
+        self._boxSelecionados.grid(row=3, column=2, rowspan=2, padx=(0, 5))
 
-        _addButton.grid(row=3, column=1, sticky='n')
-        _removerButton.grid(row=3, column=1, sticky='s')
-        _confirmarButton.grid(row=5, column=1, sticky='n')
+        _addButton.grid(row=3, column=1, sticky='n', padx=(5, 5))
+        _removerButton.grid(row=3, column=1, sticky='s', padx=(5, 5))
+        _cancelarButton.grid(row=5, column=0, pady=(5, 10))
+        _confirmarButton.grid(row=5, column=2, pady=(5, 10))
 
         self._boxSemestre.event_generate("<<ComboboxSelected>>")
 
@@ -156,6 +163,7 @@ class FramesMatricula(tk.LabelFrame):
                     _addButton,
                     _removerButton,
                     _confirmarButton,
+                    _cancelarButton,
                     self._boxSelecionados,
                     self._boxDisciplinas,
                     self._boxSemestre)
@@ -189,16 +197,23 @@ class FramesMatricula(tk.LabelFrame):
         _confirmarButton = tk.Button(self)
         _confirmarButton['text'] = "Cancelar Matricula"
         _confirmarButton['command'] = self._metodos["confirmarCancelamento"]
+        _confirmarButton.bind("<Return>", lambda _: self._metodos["confirmarCancelamento"]())
+
+        _cancelarButton = tk.Button(self)
+        _cancelarButton['text'] = "Fechar"
+        _cancelarButton['command'] = self._janelaPrincipal.fecharJanela
+        _cancelarButton.bind("<Return>", lambda _: self._janelaPrincipal.fecharJanela)
 
         _labelDisciplinas.grid(row=0, column=0)
-        self._boxDisciplinas.grid(row=1, column=0, rowspan=3)
+        self._boxDisciplinas.grid(row=1, column=0, rowspan=3, padx=(5, 0))
 
         _labelSelecionados.grid(row=0, column=2)
-        self._boxSelecionados.grid(row=1, column=2, rowspan=3)
+        self._boxSelecionados.grid(row=1, column=2, rowspan=3, padx=(0, 5))
 
-        _addButton.grid(row=1, column=1, sticky='n')
-        _removerButton.grid(row=1, column=1, sticky='s')
-        _confirmarButton.grid(row=3, column=1, sticky='s')
+        _addButton.grid(row=1, column=1, sticky='n', padx=(5, 5))
+        _removerButton.grid(row=1, column=1, sticky='s', padx=(5, 5))
+        _cancelarButton.grid(row=4, column=0, pady=(5, 5))
+        _confirmarButton.grid(row=4, column=2, pady=(5, 5))
 
         self._retag('frameMatricula',
                     self,
@@ -207,6 +222,7 @@ class FramesMatricula(tk.LabelFrame):
                     _addButton,
                     _removerButton,
                     _confirmarButton,
+                    _cancelarButton,
                     self._boxSelecionados,
                     self._boxDisciplinas)
 
@@ -254,7 +270,6 @@ class FramesMatricula(tk.LabelFrame):
 
         self._treeHistorico.heading('Situação', text='Situação')
         self._treeHistorico.column('Situação', width=110, anchor='center')
-
 
         self._retag('frameMatricula',
                     self,

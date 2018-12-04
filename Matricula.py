@@ -9,10 +9,6 @@ class Matricula:
     def __init__(self, janelaPrincipal, idAluno, curso):
         self._janelaPrincipal = janelaPrincipal
 
-        if strftime("%d/%m/%Y") > self._janelaPrincipal.sistema.terminoMatricula:
-            self._janelaPrincipal.fimMatricula()
-            return
-
         self._curso = curso
         self._idAluno = idAluno
 

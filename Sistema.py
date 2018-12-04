@@ -6,14 +6,24 @@ from ConexaoBanco import ConexaoBanco
 
 class Sistema:
     def __init__(self, janelaPrincipal):
+        """
+            Classe que simula a execução das ações do ATOR SISTEMA. Finalizando ou iniciando periodos de matricula.
+            E efetuando o processamento das solicitações de matricula.
+        :param janelaPrincipal: Referencia a janela principal do programa.
+        """
         self._janelaPrincipal = janelaPrincipal
         self.DB = ConexaoBanco()
 
         self._terminoMatricula = tk.StringVar()
 
     def iniciarMatricula(self):
-        # TODO: Subistituir Entry po dataEntry (pegar no Drive)
+        """
+        Metodo publico, responsavel por solicitar a data de termino do periodo de matricula, e assim declarando
+        seu inicio.
+        :return: VOID
+        """
         inicio = tk.Toplevel(self._janelaPrincipal)
+        inicio.title("Iniciar Matriculas")
 
         dataLabel = tk.Label(inicio)
         dataLabel['text'] = "Data de Termino"
@@ -21,14 +31,21 @@ class Sistema:
         dataEntry = DataEntry(inicio, self._terminoMatricula)
 
         dataLabel.grid(row=0, column=0)
-        dataEntry.grid(row=1, column=0)
+        dataEntry.grid(row=1, column=0, padx=(10, 10))
 
         okButton = tk.Button(inicio)
-        okButton['text'] = "Ok"
-        okButton['command'] = inicio.destroy
+        okButton['text'] = "Iniciar Matricula"
+        okButton['command'] = lambda: self._janelaPrincipal.inicioMatricula(inicio)
+        okButton.bind("<Return>", lambda _: self._janelaPrincipal.inicioMatricula(inicio))
+        okButton.grid(row=2, column=0, pady=(10, 10))
 
     def terminarMatricula(self):
-        self.terminoMatricula = strftime("%d-%m-%Y")
+        """
+        Metodo publico, responsavel por finalizar o periodo de matricula, e então processar as
+        solicitações de matricula, verificando as dependencias de cada disciplina.
+        :return: VOID
+        """
+        self.terminoMatricula = strftime("%d/%m/%Y")
 
         listaCursando = []
         listaRecusados = []
@@ -112,6 +129,8 @@ class Sistema:
                 cursor.execute(update)
                 self.DB.commit()
         cursor.close()
+
+        self._janelaPrincipal.fimMatricula()
 
     @property
     def terminoMatricula(self):

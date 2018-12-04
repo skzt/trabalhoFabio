@@ -8,27 +8,29 @@ class DataEntry(Entry):
 
         :param parent: Widget de origem
         :param variavel: StringVar para para obter o text da Entry
-        :param arg:
-        :param kwarg:
         """
 
         Entry.__init__(self, parent, *arg, **kwarg)
         self.focus()
+        print("ENTREI")
+        self._textvariable = variavel
+        self['textvariable'] = self._textvariable
+        self._textvariable.set("  /  /    ")
+        self._textvariable.trace_id = self._textvariable.trace('w', self._validaData)
 
-        self.textvariable = variavel
-        self['textvariable'] = self.textvariable
-        self.textvariable.set("  /  /    ")
-        self.textvariable.trace('w', self.__validaData)
-
-    def __validaData(self, *_):
-        if len(self.textvariable.get()) == 0:
-            self.textvariable.set('  /  /    ')
+    def _validaData(self, *_):
+        if self.winfo_exists() == 0:
+            self._textvariable.trace_vdelete('w', self._textvariable.trace_id)
             return
 
-        if self.textvariable.get() == '  /  /    ':
+        if len(self._textvariable.get()) == 0:
+            self._textvariable.set('  /  /    ')
             return
 
-        data = list(self.textvariable.get())
+        if self._textvariable.get() == '  /  /    ':
+            return
+
+        data = list(self._textvariable.get())
         atual = self.index('insert')
 
         if len(data) < 10:
@@ -81,12 +83,7 @@ class DataEntry(Entry):
                 saida += char
             else:
                 saida += ' '
-        self.textvariable.set(saida[:10])
+        self._textvariable.set(saida[:10])
 
-    @property
-    def textvariable(self):
-        return self.__textvariable
-
-    @textvariable.setter
-    def textvariable(self, variavel):
-        self.__textvariable = variavel
+    def __del__(self):
+        print("DATA ENTRY FUUUI")

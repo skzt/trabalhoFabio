@@ -3,25 +3,53 @@ from Matricula import Matricula
 
 class Aluno:
     def __init__(self, janelaPrincipal, idAluno, nome, cpf, dataNasc, curso):
+        """
+        Classe responsavel por armazenar as informações referentes ao Aluno.
+        :var self._matriculado: Referencia a fachada responsavel por Manter, Processar e Apresentar as informações
+        de matricula do aluno, como Historico, efetuar Matricula no semestre, etc...
+        :param janelaPrincipal: Referencia a janela principal do programa.
+        :param idAluno: Identificado do Aluno.
+        :param nome: Nome do Aluno.
+        :param cpf: CPF do Aluno.
+        :param dataNasc: Data de Nascimento do Aluno.
+        :param curso: Curso do Aluno.
+        """
         self._janelaPrincipal = janelaPrincipal
+
         self._idAluno = idAluno
         self._nome = nome
         self._cpf = cpf
         self._dataNasc = dataNasc
         self._curso = curso
+
         self._matriculado = Matricula(self._janelaPrincipal, self._idAluno, self.curso)
-        self._logado = False
 
     def solicitarMatricula(self):
+        """
+        Metodo publico, responsavel por solicitar a fachada a realização da matricula.
+        :return: VOID
+        """
         self._matriculado.solicitarMatricula()
 
     def cancelarMatricula(self):
+        """
+                Metodo publico, responsavel por solicitar a fachada o cancelamento da matricula em alguma disciplina.
+                :return: VOID
+                """
         self._matriculado.cancelarMatricula()
 
     def verHistorico(self):
+        """
+                Metodo publico, responsavel por solicitar a fachada a visualização do historico.
+                :return: VOID
+                """
         self._matriculado.verHistorico()
 
     def deslogar(self):
+        """
+                Metodo publico, responsavel por encerrar o processamento para encerrar a sessão.
+                :return: VOID
+                """
         self._matriculado.deslogar()
 
     def __del__(self):
@@ -61,11 +89,4 @@ class Aluno:
     def curso(self, curso):
         self._curso = curso
 
-    @property
-    def logado(self):
-        return self._logado
-
-    @logado.setter
-    def logado(self, logado):
-        self._logado = logado
     # </editor-fold>
