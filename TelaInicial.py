@@ -75,7 +75,6 @@ class TelaInicial(tk.Tk):
 
         self._topLoginMenu = tk.Menu(self, tearoff=0)
         self._topMatriculaMenu = tk.Menu(self, tearoff=0)
-        self._topBoletoMenu = tk.Menu(self, tearoff=0)
         self._topJanelaMenu = tk.Menu(self, tearoff=0)
         self._topSistemaMenu = tk.Menu(self, tearoff=0)
 
@@ -90,10 +89,6 @@ class TelaInicial(tk.Tk):
         # =======================================================================
         _topMenuBar.add_cascade(label="Matricula", menu=self._topMatriculaMenu, accelerator="Alt+M", underline=0)
 
-        # =======================================================================
-        # Menu de Boletos
-        # =======================================================================
-        _topMenuBar.add_cascade(label="Boletos", menu=self._topBoletoMenu, accelerator="Alt+B", underline=0)
 
         # =======================================================================
         # Menu de Controle de Janelas
