@@ -3,18 +3,31 @@ import tkinter.ttk as ttk
 
 
 class FramesMatricula(tk.LabelFrame):
-    """
-    Esta classe fica responsavel por criar e manter os respectivos frames:
-        Frame de Solicitação de Matricula
-        Frame de Cancelamento de Matricula
-        Frame de Visualização de Historico
-        Frame de Visualização dos Horarios
-    e recebe como paramentro, os metodos necessarios para o funcionamento da janela para que sejam bindados.
-    master -> Referencia para janela principal.
-    metodos -> Dicionario com metodos necessarios para cada tipo de frame.
-    """
-
     def __init__(self, master, metodos=None, *arg, **kwarg):
+        """
+        Esta classe fica responsavel por criar e manter os respectivos frames:
+            Frame de Solicitação de Matricula
+            Frame de Cancelamento de Matricula
+            Frame de Visualização de Historico
+            Frame de Visualização dos Horarios
+        E recebe como paramentro, os metodos necessarios para
+        o funcionamento da janela para que sejam bindados.
+
+        :var self._janelaPrincipal: Referencia a janela principal
+        :var self._metodos: Dicionario com os metodos de Matricula
+        :var self._flagHistorico: Flag que indica se já existe uma instancia da janela de Historico.
+        :var self._boxDisciplinas: Referencia a Lista de Disciplinas a serem selecionadas.
+        :var self._boxSelecionados: Referencia a Lista de Disciplina selecionadas.
+        :var self._boxSemestre: Referencia a ComboBox de seleção de semestre.
+        :var self._treeHistorico: Referencia a TreeView que apresenta o historico.
+        :var self._scrollbar: Referencia a Scrollbar de rolagem do historico.
+        :var style = ttk.Style: Objeto para alteração do estilo de apresentação do historico.
+        :var self._listaDisciplinas: Referencia a lista de disciplinas a serem selecionadas.
+        :var self._listaSelecionados: Referencia a lista de disciplinas selecionadas.
+
+        :param master: Referencia a janela principal.
+        :param metodos: Dicionario com a referencia aos metodos de Matricula.
+        """
         tk.LabelFrame.__init__(self, master, labelanchor='n', *arg, **kwarg)
 
         self.focus()
@@ -39,8 +52,8 @@ class FramesMatricula(tk.LabelFrame):
     @staticmethod
     def _retag(tag, *widgets):
         """
-        Adiciona uma tag especifica aos widigets passados, para bindar o evento "<Escape>" que
-        esconde a janela aberta (em foco).
+        Metodo privado, que adiciona uma tag especifica aos widigets passados,
+        para bindar o evento "<Escape>" que esconde a janela aberta (em foco).
 
         :param tag: Nome da tag que sera adicionada aos widgets
         :param widgets: Widgets que iram receber a tag
@@ -51,6 +64,13 @@ class FramesMatricula(tk.LabelFrame):
             widget.bindtags((tag,) + widget.bindtags())
 
     def _adicionarDisciplina(self):
+        """
+        Metodo privado, responsavel por adicionar as disciplinas selecionadas na
+        Lista de Disciplinas Selecionadas.
+
+        Alem de remover as disciplinas selecionadas da Lista de Disciplinas Selecionadas.
+        :return: VOID
+        """
         index = self.boxDisciplinas.curselection()
 
         if len(index) == 0:
@@ -71,13 +91,20 @@ class FramesMatricula(tk.LabelFrame):
                 self.listaSelecionados = disciplinasSelecionadas
 
     def _removerDisciplina(self):
+        """
+        Metodo privado, responsavel por remover as disciplinas selecionadas na
+        Lista de Disciplinas Selecionadas.
+
+        Alem de adicionar as disciplinas selecionadas na Lista de Disciplinas Selecionadas.
+        :return: VOID
+        """
         index = self.boxSelecionados.curselection()
 
         if len(index) == 0:
             return
         else:
             index = index[0]
-            select =self.boxSelecionados.get(index)
+            select = self.boxSelecionados.get(index)
             tmp = self.listaDisciplinas
             tmp.append(select)
             tmp.sort()
@@ -85,7 +112,11 @@ class FramesMatricula(tk.LabelFrame):
             self.boxSelecionados.delete(index)
 
     def frameSolicitar(self):
-        # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM FAZER MATRICULA
+        """
+        Metodo publico, responsavel pela criação do frame(Janela) referente a solicitação
+        de matricula e todos os widgets necessarios.
+        :return: VOID
+        """
         self._janelaPrincipal.novaJanela("Solicitar Matricula", self, row=0, column=1, sticky='n')
 
         self['text'] = "Solicitação de Matricula"
@@ -169,7 +200,11 @@ class FramesMatricula(tk.LabelFrame):
                     self._boxSemestre)
 
     def frameCancelar(self):
-        # TODO: VERIFICAR SE O PERIODO DE MATRICULA ESTA EM ABERTO PERMITINDO ASSIM CANCELAR MATRICULA
+        """
+            Metodo publico, responsavel pela criação do frame(Janela) referente ao cancelamento
+            de matricula e todos os widgets necessarios.
+            :return: VOID
+        """
         self._janelaPrincipal.novaJanela("Cancelar Matricula", self, row=0, column=1, sticky='n')
 
         self['text'] = "Cancelar Solicitação de Matricula"
@@ -227,6 +262,11 @@ class FramesMatricula(tk.LabelFrame):
                     self._boxDisciplinas)
 
     def frameHistorico(self):
+        """
+            Metodo publico, responsavel pela criação do frame(Janela) referente ao historico
+            e todos os widgets necessarios.
+            :return: VOID
+        """
         self._janelaPrincipal.novaJanela("Ver Historico", self, row=0, column=1, sticky='nswe')
 
         if self._flagHistorico is False:
@@ -275,9 +315,6 @@ class FramesMatricula(tk.LabelFrame):
                     self,
                     self._treeHistorico)
 
-    def __del__(self):
-        print("oiiiiiiiiiiiiii frame")
-
     @property
     def boxSemestre(self):
         return self._boxSemestre
@@ -309,7 +346,3 @@ class FramesMatricula(tk.LabelFrame):
     @listaSelecionados.setter
     def listaSelecionados(self, lista):
         self._listaSelecionados.set(lista)
-
-
-
-

@@ -33,28 +33,24 @@ class Aluno:
 
     def cancelarMatricula(self):
         """
-                Metodo publico, responsavel por solicitar a fachada o cancelamento da matricula em alguma disciplina.
-                :return: VOID
-                """
+            Metodo publico, responsavel por solicitar a fachada o cancelamento da matricula em alguma disciplina.
+            :return: VOID
+        """
         self._matriculado.cancelarMatricula()
 
     def verHistorico(self):
         """
-                Metodo publico, responsavel por solicitar a fachada a visualização do historico.
-                :return: VOID
-                """
+            Metodo publico, responsavel por solicitar a fachada a visualização do historico.
+            :return: VOID
+        """
         self._matriculado.verHistorico()
 
     def deslogar(self):
         """
-                Metodo publico, responsavel por encerrar o processamento para encerrar a sessão.
-                :return: VOID
-                """
+            Metodo publico, responsavel por encerrar o processamento para encerrar a sessão.
+            :return: VOID
+        """
         self._matriculado.deslogar()
-
-    def __del__(self):
-        # del self._matriculado
-        print("OIIII ALUNO")
 
     # <editor-fold desc="Property Aluno">
     @property

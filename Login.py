@@ -6,7 +6,20 @@ from Aluno import Aluno
 
 class Login:
     def __init__(self, janelaPrincipal, usuario):
-        """ Classe responsavel por fazer o Login no sistema e operações relacionadas com login.
+        """
+        Classe responsavel por fazer o Login no sistema e operações relacionadas com login.
+        Também é responsavel por manter a sessão do usuario e caminho para acesso aos dados
+        do usuario (ALUNO).
+
+        :var self._janelaPrincipal: Referencia a janela princiapl.
+        :var self._usuario: Referencia a variavel que armazena o usuario digitado.
+        :var self._aluno: Objeto de Aluno, contendo todos seus dados.
+        :var self.DB: Referencia ao objeto de conexão ao banco de dados.
+
+        :param janelaPrincipal: Referencia a janela principal.
+        :param usuario: Referencia a variavel que armazena o usuario digitado.
+        """
+        """ 
         usuario -> Variavel que observa o widget usuarioEntry
         senha -> Variavel que observa o widget senhaEntry
         widgets -> os widgets de usuario e senha, respectivamente. Utilizados para alteração de estado do widget."""
@@ -15,10 +28,15 @@ class Login:
         self._usuario = usuario
         self._aluno = None
 
-        # Acesso ao banco
         self.DB = ConexaoBanco()
 
     def logar(self, senha):
+        """
+        Metodo publico, responsavel por efetivar o login, verificando a existencia de um
+        usuario e senha compativeis com o digitado.
+        :param senha: Variavel que armazena a senha digitada pelo usuario.
+        :return:VOID
+        """
         select = '''SELECT idAluno FROM LOGIN WHERE usuario = '%s' AND senha = MD5('%s');''' \
                  % (self._usuario.get(), senha.get())
 
@@ -38,8 +56,6 @@ class Login:
             -Alterar senha
             """
 
-
-
             select = "SELECT * FROM ALUNO WHERE idAluno = %d;" % idAluno
 
             cursor.execute(select)
@@ -57,6 +73,10 @@ class Login:
             return False
 
     def alterarSenhaWindow(self):
+        """
+        Metodo publico, responsavel por gerar a janela de alteração de senha.
+        :return: VOID
+        """
         _frameMudaSenha = tk.Toplevel(self._janelaPrincipal)
         self._janelaPrincipal.openWindows = ("Alterar Senha", _frameMudaSenha)
         _senhaAtualVar = tk.StringVar()
@@ -95,7 +115,7 @@ class Login:
         _confirmar = tk.Button(_frameMudaSenha)
         _confirmar['text'] = "Confirmar"
         _confirmar['command'] = lambda sav=_senhaAtualVar, nsv=_novaSenhaVar, cnsv=_confNovaSenhaVar, frame=\
-            _frameMudaSenha: self.alterarsenhacommit(sav, nsv, cnsv, frame)
+            _frameMudaSenha: self._alterarsenhacommit(sav, nsv, cnsv, frame)
         _cancelar = tk.Button(_frameMudaSenha)
         _cancelar['text'] = "Cancelar"
         _cancelar['command'] = _frameMudaSenha.destroy
@@ -115,7 +135,18 @@ class Login:
         _cancelar.grid(row=6, column=0, sticky='se')
         return
 
-    def alterarsenhacommit(self, senhaAtualVar, novaSenhaVar, confNovaSenhaVar, frame):
+    def _alterarsenhacommit(self, senhaAtualVar, novaSenhaVar, confNovaSenhaVar, frame):
+        """
+        Metodo privado, responsavel por conferir as senhas digitadas e efetuar
+        a atualização da senha no banco de dados.
+
+        :param senhaAtualVar: Variavel que armazena a senha digitada pelo usuario.
+        :param novaSenhaVar: Variavel que armazena a nova senha digitada pelo usuario.
+        :param confNovaSenhaVar: Variavel que armazena a novamente a nova
+        senha digitada pelo usuario.
+        :param frame: Referencia a janela de alteração de senha.
+        :return: Void
+        """
         if novaSenhaVar.get() != confNovaSenhaVar.get():
             messagebox.showerror(title="Senhas Não Conferem.",
                                  message="Nova senha e Confirmar Senha devem ser iguais.",
@@ -155,10 +186,11 @@ class Login:
                 confNovaSenhaVar.set("")
 
     def encerrarsessao(self):
+        """
+        Metodo publico, responsavel por encerrar a sessão de login.
+        :return: VOID
+        """
         self._aluno.deslogar()
-
-    def __del__(self):
-        print("OIIII LOGIN")
 
     @property
     def aluno(self):

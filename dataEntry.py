@@ -12,13 +12,18 @@ class DataEntry(Entry):
 
         Entry.__init__(self, parent, *arg, **kwarg)
         self.focus()
-        print("ENTREI")
         self._textvariable = variavel
         self['textvariable'] = self._textvariable
         self._textvariable.set("  /  /    ")
         self._textvariable.trace_id = self._textvariable.trace('w', self._validaData)
 
     def _validaData(self, *_):
+        """
+        Metodo privado, responsavel por validar toda entrada de dados no widget e tratalo
+        de maneira a se manter o padrão dd/mm/aaaa.
+        :param _: Apenas ignora os paramentros passados automaticamente pelo metodo StringVar.trace()
+        :return: VOID
+        """
         if self.winfo_exists() == 0:
             self._textvariable.trace_vdelete('w', self._textvariable.trace_id)
             return
@@ -84,6 +89,3 @@ class DataEntry(Entry):
             else:
                 saida += ' '
         self._textvariable.set(saida[:10])
-
-    def __del__(self):
-        print("DATA ENTRY FUUUI")

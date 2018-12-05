@@ -9,6 +9,10 @@ class Sistema:
         """
             Classe que simula a execução das ações do ATOR SISTEMA. Finalizando ou iniciando periodos de matricula.
             E efetuando o processamento das solicitações de matricula.
+
+            :var self._janelaPrincipal: Referencia a janela principal do programa.
+            :var self.DB: Referencia a ConexaoBanco.
+            :var self._terminoMatricula: Data de termino do periodo de Matricula.
         :param janelaPrincipal: Referencia a janela principal do programa.
         """
         self._janelaPrincipal = janelaPrincipal

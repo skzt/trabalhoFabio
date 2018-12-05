@@ -1,5 +1,3 @@
-import tkinter as tk
-import tkinter.ttk as ttk
 from time import strftime
 from ConexaoBanco import ConexaoBanco
 from FramesMatricula import FramesMatricula
@@ -7,6 +5,25 @@ from FramesMatricula import FramesMatricula
 
 class Matricula:
     def __init__(self, janelaPrincipal, idAluno, curso):
+        """
+        Classe fachada(Façade), responsavel pelo processamento necessario para:
+            - Solicitar Matricula em Disciplinas;
+            - Cancelar Solicitação de Matricula em Disciplinas;
+            - Visualizar Historico.
+
+        :var self._janelaPrincipal: Referencia a janela principal.
+        :var self._curso : Curso do Aluno.
+        :var self._idAluno: Identificado do Aluno.
+        :var self.DB: Referencia a ConexaoBanco.
+        :var self._frameSolicitacao: Referencia ao frame(Janela) de solicitação de matricula.
+        :var self._frameCancelamento: Referencia ao frame(Janela)
+        de cancelamento de solicitação de matricula.
+        :var self._frameHistorico: Referencia ao frame(Janela) de historico.
+
+        :param janelaPrincipal: Referencia a janela principal.
+        :param idAluno: Identificado do Aluno.
+        :param curso: Curso do Aluno.
+        """
         self._janelaPrincipal = janelaPrincipal
 
         self._curso = curso
@@ -16,11 +33,13 @@ class Matricula:
         self._frameSolicitacao = None
         self._frameCancelamento = None
         self._frameHistorico = None
-        self._frameHorario = None
-
-        # self.carregarDisciplinas()
 
     def solicitarMatricula(self):
+        """
+        Metodo publico, responsavel por solicitar a criação de um frame e seus widgets,
+        para a solicitação de matricula.
+        :return: VOID
+        """
         metodos = {"mudarSemestre": self._mudarSemestre,
                    "confirmarSolicitacao": self._confirmarSolicitacao
                    }
@@ -29,6 +48,11 @@ class Matricula:
         self._frameSolicitacao.frameSolicitar()
 
     def cancelarMatricula(self):
+        """
+        Metodo publico, responsavel por solicitar a criação de um frame e seus widgets,
+        para o cancelamento de solicitação de matricula.
+        :return: VOID
+        """
         metodos = {"confirmarCancelamento": self._confirmarCancelamento}
 
         if self._frameCancelamento is None:
@@ -36,10 +60,22 @@ class Matricula:
         self._carregarProcessando()
         self._frameCancelamento.frameCancelar()
 
+    def verHistorico(self):
+        """
+        Metodo publico, responsavel pro solicitar a criação de um frame e seus widgets,
+        para a visualização do Historico.
+        :return: VOID
+        """
+        if self._frameHistorico is None:
+            self._frameHistorico = FramesMatricula(self._janelaPrincipal)
+        self._frameHistorico.frameHistorico()
+        self._popularHistorico()
+
     def _carregarProcessando(self):
         """
-        Verificar se existe alguma disciplina deste aluno com situação == PROCESSANDO
-        e popula a lista _frameCancelamento._listaDisciplinas com essas disciplinas, se houver.
+        Metodo privado, responsavel por verificar se existe alguma
+        disciplina deste aluno com situação == PROCESSANDO e popula
+        a lista _frameCancelamento._listaDisciplinas com essas disciplinas, se houver.
         :return: VOID
         """
 
@@ -68,6 +104,13 @@ class Matricula:
         cursor.close()
 
     def _mudarSemestre(self, evt):
+        """
+        Metodo privado, responsavel por alterar a lista de disciplinas, de acordo com o
+        semestre selecionado.
+        :param evt: Objeto de Event, que contem referencia ao widget ComboBox ,
+        para obter o semestre escolhido.
+        :return: VOID
+        """
         widget = evt.widget
 
         mapaSemestre = {"Primeiro Semestre": 1,
@@ -111,6 +154,11 @@ class Matricula:
         self._frameSolicitacao.listaDisciplinas = listaDisciplinas
 
     def _confirmarSolicitacao(self):
+        """
+        Metodo Privado, responsavel por finalizar a solicitação de matricula,
+        salvadno no banco as disciplinas solicitadas pelo Aluno, com a situação "PROCESSANDO".
+        :return: VOID
+        """
         self._frameSolicitacao.focus()
         self._janelaPrincipal.fecharJanela()
 
@@ -141,6 +189,11 @@ WHERE idDisciplina = %d AND semestre = '%s';''' % (idDisciplina, semestre))
         self._frameSolicitacao = None
 
     def _confirmarCancelamento(self):
+        """
+        Metodo Privado, responsavel por finalizar o cancelamento de solicitação de matricula,
+        deletando do banco as disciplinas solicitadas pelo Aluno, com a situação "PROCESSANDO".
+        :return: VOID
+        """
         self._frameCancelamento.focus()
         self._janelaPrincipal.fecharJanela()
 
@@ -168,13 +221,12 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
         cursor.close()
         self._frameCancelamento = None
 
-    def verHistorico(self):
-        if self._frameHistorico is None:
-            self._frameHistorico = FramesMatricula(self._janelaPrincipal)
-        self._frameHistorico.frameHistorico()
-        self._popularHistorico()
-
     def _popularHistorico(self):
+        """
+        Metodo privado, responsavel por populas a janela de Historico com os dados das
+        disciplinas cursadas e selecionadas, pelo aluno.
+        :return: VOID
+        """
         self._frameHistorico.treeHistorico.delete(*self._frameHistorico.treeHistorico.get_children())
         cursor = self.DB.cursor()
         situacao = {1: "PROCESSANDO",
@@ -240,7 +292,11 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
         cursor.close()
 
     def deslogar(self):
-
+        """
+        Metodo publico, responsavel por encerrar todas as janelas
+        que a Matricula tenha aberto para finalizar a sessão.
+        :return: VOID
+        """
         if self._frameSolicitacao is not None:
             self._frameSolicitacao.destroy()
             del self._frameSolicitacao
@@ -252,13 +308,3 @@ WHERE DISCIPLINA_ALUNO.situacao = 1
         if self._frameHistorico is not None:
             self._frameHistorico.destroy()
             del self._frameHistorico
-
-        if self._frameHorario is not None:
-            self._frameHorario.destroy()
-            del self._frameHorario
-
-    def __del__(self):
-        print("OIIIIIIIII MATRICULA")
-
-
-

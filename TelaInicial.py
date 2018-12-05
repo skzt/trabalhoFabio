@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# TODO: REMOVER TODOS OS PRINTS!!!
+
 import tkinter as tk
 import platform as pf
 from tkinter import messagebox
@@ -234,7 +234,6 @@ class TelaInicial(tk.Tk):
 
         if janela in self._openWindows:
             self._mudarJanela(janela, **kwargs)
-            print("oi")
             return False
 
         else:
@@ -319,7 +318,6 @@ class TelaInicial(tk.Tk):
         Não fecha o sistema.
         :return: VOID
         """
-        # TODO: adicionar todos os top menus que forem adicionados após o login
         self._topLoginMenu.delete(0, 'end')
         self._topMatriculaMenu.delete(0, 'end')
         self._topJanelaMenu.delete(0, 'end')
